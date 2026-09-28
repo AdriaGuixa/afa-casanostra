@@ -1,0 +1,30 @@
+backend:
+  name: git-gateway # Configurat per funcionar perfectament amb Netlify quan es desplegui
+  branch: main # O master, depenent del teu repositori
+
+# Quan treballem localment
+local_backend: true
+
+media_folder: "public/uploads" # On es guardaran les imatges i PDFs
+public_folder: "/uploads"
+
+collections:
+  - name: "noticies"
+    label: "Notícies"
+    folder: "src/content/noticies"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Títol", name: "title", widget: "string"}
+      - {label: "Data", name: "date", widget: "datetime"}
+      - {label: "Imatge destacada", name: "image", widget: "image", required: false}
+      - {label: "Cos de la notícia", name: "body", widget: "markdown"}
+
+  - name: "documents"
+    label: "Documents (Ex: Menú)"
+    folder: "src/content/documents"
+    create: true
+    fields:
+      - {label: "Títol", name: "title", widget: "string"}
+      - {label: "Arxiu PDF o Imatge", name: "file", widget: "file"}
+      - {label: "Tipus (ex: menjador, extraescolars)", name: "tipus", widget: "string", default: "menjador"}

@@ -1,0 +1,47 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const allPosts = Object.values(import.meta.glob('../../content/noticies/*.md', { eager: true }));
+// Ordenar per data (més recents primer)
+const sortedPosts = allPosts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
+---
+
+<Layout title="Notícies">
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    <h1 class="text-4xl font-bold text-brand-blue mb-8">Notícies i Comunicats</h1>
+    
+    <div class="grid gap-6">
+      {sortedPosts.map((post) => (
+        <article class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-6">
+          {post.frontmatter.image && (
+            <div class="w-full md:w-48 h-48 md:h-auto shrink-0 bg-slate-100 rounded-lg overflow-hidden">
+              <img src={post.frontmatter.image} alt="" class="w-full h-full object-cover" />
+            </div>
+          )}
+          <div class="flex-grow flex flex-col justify-center">
+            <span class="text-sm text-brand-light font-medium mb-2">
+              {new Date(post.frontmatter.date).toLocaleDateString('ca-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </span>
+            <h2 class="text-2xl font-bold mb-3 text-slate-800">
+              <a href={post.url || `/noticies/${post.file.split('/').pop().replace('.md', '')}`} class="hover:text-brand-blue transition">
+                {post.frontmatter.title}
+              </a>
+            </h2>
+            <div class="text-slate-600 line-clamp-3">
+              <!-- Removed compiledContent to avoid SSR issues -->
+              Llegeix l'article complet per saber-ne més detalls sobre aquest comunicat de l'AFA.
+            </div>
+            <div class="mt-4">
+              <a href={post.url || `/noticies/${post.file.split('/').pop().replace('.md', '')}`} class="text-brand-blue font-medium hover:underline">Llegir més &rarr;</a>
+            </div>
+          </div>
+        </article>
+      ))}
+      
+      {sortedPosts.length === 0 && (
+        <div class="text-center py-12 bg-slate-50 rounded-lg text-slate-500">
+          Encara no hi ha cap notícia publicada.
+        </div>
+      )}
+    </div>
+  </div>
+</Layout>

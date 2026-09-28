@@ -1,0 +1,35 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const posts = Object.values(import.meta.glob('../../content/noticies/*.md', { eager: true }));
+  
+  return posts.map(post => {
+    const slug = post.file.split('/').pop().replace('.md', '');
+    return {
+      params: { slug },
+      props: { post }
+    };
+  });
+}
+
+const { post } = Astro.props;
+---
+
+<Layout title={post.frontmatter.title}>
+  <article class="max-w-3xl mx-auto px-4 py-12">
+    <header class="mb-8">
+      <a href="/noticies" class="text-brand-light hover:underline mb-6 inline-block">&larr; Tornar a notícies</a>
+      <h1 class="text-4xl font-bold text-brand-blue mb-4">{post.frontmatter.title}</h1>
+      <time class="text-slate-500 font-medium block mb-6">
+        {new Date(post.frontmatter.date).toLocaleDateString('ca-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+      </time>
+      {post.frontmatter.image && (
+        <img src={post.frontmatter.image} alt={post.frontmatter.title} class="w-full h-auto rounded-xl shadow-sm mb-8" />
+      )}
+    </header>
+    <div class="prose prose-lg max-w-none text-slate-700">
+      <post.Content />
+    </div>
+  </article>
+</Layout>

@@ -1,0 +1,67 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="ca">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} - AFA Casa Nostra</title>
+    <link rel="icon" type="image/png" href="http://www.escolacasanostra.cat/wp-content/uploads/2019/03/casa-nostra-logo-blau-220x76.png" />
+  </head>
+  <body class="flex flex-col min-h-screen">
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+      <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3">
+          <!-- Utilitzem el logo oficial que hem trobat a la web -->
+          <img src="http://www.escolacasanostra.cat/wp-content/uploads/2019/03/casa-nostra-logo-blau-220x76.png" alt="Logo Escola Casa Nostra" class="h-12" />
+          <div class="font-bold text-xl text-brand-blue leading-tight hidden sm:block">
+            AFA<br/><span class="text-sm font-normal text-slate-500">Casa Nostra Banyoles</span>
+          </div>
+        </a>
+        <nav class="hidden md:flex gap-6 font-medium text-brand-blue">
+          <a href="/afa" class="hover:text-brand-light transition">L'AFA</a>
+          <a href="/serveis/menjador" class="hover:text-brand-light transition">Menjador</a>
+          <a href="/serveis/extraescolars" class="hover:text-brand-light transition">Extraescolars</a>
+          <a href="/noticies" class="hover:text-brand-light transition">Notícies</a>
+          <a href="/contacte" class="hover:text-brand-light transition">Contacte</a>
+        </nav>
+        <div class="md:hidden">
+          <!-- Aquí aniria un menú d'hamburguesa per mòbils. El fem simple ara -->
+          <button class="text-brand-blue p-2">Menú</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow">
+      <slot />
+    </main>
+
+    <footer class="bg-brand-blue text-white mt-12 py-8">
+      <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <h3 class="font-bold text-lg mb-4">AFA Casa Nostra</h3>
+          <p class="text-blue-100 text-sm">Escola Casa Nostra<br/>Banyoles / Porqueres</p>
+        </div>
+        <div>
+          <h3 class="font-bold text-lg mb-4">Enllaços ràpids</h3>
+          <ul class="text-blue-100 text-sm space-y-2">
+            <li><a href="/admin/index.html" class="hover:text-white transition">Accés Pares (Panell)</a></li>
+            <li><a href="http://www.escolacasanostra.cat" target="_blank" class="hover:text-white transition">Web de l'Escola</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-bold text-lg mb-4">Contacte</h3>
+          <p class="text-blue-100 text-sm">info@afa-casanostra.cat</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

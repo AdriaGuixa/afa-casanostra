@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-blue: #003B73;
+  --color-brand-light: #60A3D9;
+  --color-brand-accent: #F2A900;
+}
+
+body {
+  @apply bg-slate-50 text-slate-800;
+}

@@ -1,0 +1,48 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Activitats Extraescolars">
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    <h1 class="text-4xl font-bold text-brand-blue mb-8">Activitats Extraescolars</h1>
+    
+    <div class="prose prose-lg max-w-none text-slate-700">
+      <p>L'AFA organitza cada curs una graella d'activitats extraescolars fora de l'horari lectiu (migdia i tarda) amb l'objectiu de completar la formació dels alumnes de manera lúdica, esportiva i artística.</p>
+      
+      <div class="bg-blue-50 border-l-4 border-blue-400 p-6 my-8 rounded-r-lg">
+        <h3 class="text-xl font-bold text-blue-800 mb-2">Inscripcions Obertes!</h3>
+        <p class="text-blue-900 mb-4">El període d'inscripció per al curs actual està obert fins al 30 de setembre.</p>
+        <button class="bg-blue-600 text-white font-medium py-2 px-6 rounded hover:bg-blue-700 transition">
+          Formulari d'Inscripció
+        </button>
+      </div>
+
+      <h2 class="text-2xl font-semibold text-brand-blue mt-8 mb-4">Graella d'Activitats</h2>
+      <p>A continuació podeu descarregar el dossier informatiu amb els horaris, activitats i preus per a cada cicle (Infantil, Primària i ESO).</p>
+      
+      <ul class="space-y-4 mt-6">
+        <li class="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition">
+          <span class="text-2xl">🎨</span>
+          <div>
+            <h4 class="font-bold">Arts i Creativitat</h4>
+            <p class="text-sm text-slate-500">Pintura, teatre, ceràmica (Infantil i Primària)</p>
+          </div>
+        </li>
+        <li class="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition">
+          <span class="text-2xl">⚽</span>
+          <div>
+            <h4 class="font-bold">Esports</h4>
+            <p class="text-sm text-slate-500">Futbol, bàsquet, patinatge, multiesport</p>
+          </div>
+        </li>
+        <li class="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition">
+          <span class="text-2xl">💻</span>
+          <div>
+            <h4 class="font-bold">Idiomes i Tecnologia</h4>
+            <p class="text-sm text-slate-500">Anglès, robòtica i programació</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</Layout>

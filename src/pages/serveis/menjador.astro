@@ -1,0 +1,47 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Servei de Menjador">
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    <h1 class="text-4xl font-bold text-brand-blue mb-8">Servei de Menjador</h1>
+    
+    <div class="bg-orange-50 border-l-4 border-orange-400 p-6 mb-8 rounded-r-lg">
+      <h2 class="text-xl font-bold text-orange-800 mb-2">Menú del Mes</h2>
+      <p class="text-orange-900 mb-4">Ja podeu consultar i descarregar el menú corresponent a aquest mes, dissenyat per garantir una alimentació equilibrada i saludable.</p>
+      <a href="#" class="inline-flex items-center text-orange-700 font-medium hover:text-orange-800 underline">
+        📄 Descarregar Menú PDF
+      </a>
+    </div>
+
+    <div class="prose prose-lg max-w-none text-slate-700">
+      <p>El servei de menjador de l'Escola Casa Nostra està gestionat per l'AFA mitjançant una empresa de càtering especialitzada en nutrició escolar. El nostre objectiu és oferir àpats saludables, equilibrats i de proximitat.</p>
+      
+      <h2 class="text-2xl font-semibold text-brand-blue mt-8 mb-4">Funcionament i Horaris</h2>
+      <p>El menjador està actiu tots els dies lectius. Hi ha l'opció de quedar-se fix (tots els dies o dies concrets de la setmana) o de forma esporàdica comprant tiquets puntuals.</p>
+
+      <h2 class="text-2xl font-semibold text-brand-blue mt-8 mb-4">Preus i Inscripció</h2>
+      <table class="w-full text-left border-collapse mt-4 mb-8">
+        <thead>
+          <tr class="bg-slate-100">
+            <th class="p-3 border-b-2 border-slate-200">Modalitat</th>
+            <th class="p-3 border-b-2 border-slate-200">Preu Soci</th>
+            <th class="p-3 border-b-2 border-slate-200">Preu No Soci</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="p-3 border-b border-slate-200">Fix</td>
+            <td class="p-3 border-b border-slate-200">6,50 € / dia</td>
+            <td class="p-3 border-b border-slate-200">7,10 € / dia</td>
+          </tr>
+          <tr>
+            <td class="p-3 border-b border-slate-200">Esporàdic</td>
+            <td class="p-3 border-b border-slate-200">7,20 € / dia</td>
+            <td class="p-3 border-b border-slate-200">7,80 € / dia</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</Layout>

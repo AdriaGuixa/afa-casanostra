@@ -1,0 +1,59 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Inici">
+  <!-- Hero Section -->
+  <section class="bg-brand-light/10 py-16">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-brand-blue mb-6">Benvinguts a l'AFA Casa Nostra</h1>
+      <p class="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">Treballem junts per millorar el dia a dia de l'escola i oferir els millors serveis als nostres fills i filles.</p>
+      <div class="flex gap-4 justify-center">
+        <a href="/serveis/menjador" class="bg-brand-blue hover:bg-brand-blue/90 text-white font-medium py-3 px-6 rounded-lg shadow transition">
+          Menú Menjador
+        </a>
+        <a href="/serveis/extraescolars" class="bg-white hover:bg-slate-50 text-brand-blue border border-slate-200 font-medium py-3 px-6 rounded-lg shadow transition">
+          Extraescolars
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Accessos ràpids / Serveis -->
+  <section class="py-16 max-w-6xl mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center text-brand-blue mb-10">Serveis Principals</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      
+      <!-- Card Menjador -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition">
+        <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
+          🍽️
+        </div>
+        <h3 class="text-xl font-bold mb-2">Menjador</h3>
+        <p class="text-slate-600 mb-4">Consulta el menú mensual, la normativa i la informació de l'empresa de càtering.</p>
+        <a href="/serveis/menjador" class="text-brand-light font-medium hover:underline">Més informació &rarr;</a>
+      </div>
+
+      <!-- Card Extraescolars -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition">
+        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
+          ⚽
+        </div>
+        <h3 class="text-xl font-bold mb-2">Extraescolars</h3>
+        <p class="text-slate-600 mb-4">Graella d'activitats per curs, horaris i formularis d'inscripció.</p>
+        <a href="/serveis/extraescolars" class="text-brand-light font-medium hover:underline">Més informació &rarr;</a>
+      </div>
+
+      <!-- Card Acollida -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition">
+        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
+          ☀️
+        </div>
+        <h3 class="text-xl font-bold mb-2">Acollida</h3>
+        <p class="text-slate-600 mb-4">Servei de bon dia i bona tarda per ajudar a la conciliació familiar.</p>
+        <a href="/serveis/acollida" class="text-brand-light font-medium hover:underline">Més informació &rarr;</a>
+      </div>
+
+    </div>
+  </section>
+</Layout>
