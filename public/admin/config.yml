@@ -1,30 +1,39 @@
 backend:
-  name: git-gateway # Configurat per funcionar perfectament amb Netlify quan es desplegui
-  branch: main # O master, depenent del teu repositori
+  name: git-gateway
+  branch: main
 
-# Quan treballem localment
 local_backend: true
 
-media_folder: "public/uploads" # On es guardaran les imatges i PDFs
+media_folder: "public/uploads"
 public_folder: "/uploads"
 
 collections:
-  - name: "noticies"
-    label: "Notícies"
-    folder: "src/content/noticies"
+  - name: "actualitat"
+    label: "Actualitat / Blog"
+    folder: "src/content/actualitat"
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
       - {label: "Títol", name: "title", widget: "string"}
       - {label: "Data", name: "date", widget: "datetime"}
+      - {label: "Tipus (Circular o Resum)", name: "tipus", widget: "select", options: ["Circular enviada", "Resum de festa", "Notícia general"]}
+      - {label: "Imatge principal", name: "image", widget: "image", required: false}
+      - {label: "Contingut de l'article", name: "body", widget: "markdown"}
+
+  - name: "festes"
+    label: "Festes i Esdeveniments"
+    folder: "src/content/festes"
+    create: true
+    fields:
+      - {label: "Nom de la festa", name: "title", widget: "string"}
       - {label: "Imatge destacada", name: "image", widget: "image", required: false}
-      - {label: "Cos de la notícia", name: "body", widget: "markdown"}
+      - {label: "Descripció i Detalls (Text)", name: "body", widget: "markdown"}
 
   - name: "documents"
-    label: "Documents (Ex: Menú)"
+    label: "Documents i Actes"
     folder: "src/content/documents"
     create: true
     fields:
       - {label: "Títol", name: "title", widget: "string"}
-      - {label: "Arxiu PDF o Imatge", name: "file", widget: "file"}
-      - {label: "Tipus (ex: menjador, extraescolars)", name: "tipus", widget: "string", default: "menjador"}
+      - {label: "Arxiu PDF", name: "file", widget: "file"}
+      - {label: "Secció", name: "tipus", widget: "select", options: ["Estatuts i RRI", "Actes d'Assemblea", "Informació Econòmica", "Formularis", "Altres"]}

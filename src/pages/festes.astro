@@ -1,0 +1,40 @@
+---
+import Layout from '../layouts/Layout.astro';
+const festes = Object.values(import.meta.glob('../content/festes/*.md', { eager: true }));
+---
+
+<Layout title="Esdeveniments i Festes">
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    <h1 class="text-4xl font-bold text-brand-blue mb-8">Esdeveniments i Festes</h1>
+    
+    <div class="prose prose-lg max-w-none text-slate-700">
+      <p>La Comissió de Festes treballa tot l'any per organitzar celebracions que uneixen a tota la comunitat educativa, creant espais de diversió, tradició i companyonia.</p>
+      
+      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 my-8 rounded-r-lg">
+        <h3 class="text-xl font-bold text-yellow-800 mb-2">Venda de Tiquets Oberta</h3>
+        <p class="text-yellow-900 mb-4">Ja podeu adquirir els tiquets per la festa de la Castanyada a la nostra botiga virtual.</p>
+        <a href="/botiga" class="inline-block bg-yellow-600 text-white font-medium py-2 px-6 rounded hover:bg-yellow-700 transition">
+          Anar a la botiga
+        </a>
+      </div>
+
+      <div class="space-y-12 mt-10">
+        {festes.map((festa) => (
+          <section class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
+            <h2 class="text-3xl font-bold text-brand-blue mb-6 border-b border-slate-100 pb-4">{festa.frontmatter.title}</h2>
+            {festa.frontmatter.image && (
+              <img src={festa.frontmatter.image} alt={festa.frontmatter.title} class="w-full h-auto rounded-lg mb-6 object-cover max-h-64" />
+            )}
+            <div class="prose prose-lg max-w-none text-slate-700">
+              <festa.Content />
+            </div>
+          </section>
+        ))}
+        
+        {festes.length === 0 && (
+          <p class="text-slate-500 italic">Encara no s'ha afegit cap festa. La junta les pot afegir des del panell d'administració.</p>
+        )}
+      </div>
+    </div>
+  </div>
+</Layout>

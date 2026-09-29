@@ -1,0 +1,63 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Transparència i Documents">
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    <h1 class="text-4xl font-bold text-brand-blue mb-8">Transparència i Documents Oficials</h1>
+    
+    <div class="prose prose-lg max-w-none text-slate-700">
+      <p>A l'AFA Casa Nostra apostem per la transparència. En aquest espai trobareu tots els documents oficials de l'entitat, les actes de les assemblees, pressupostos i formularis útils per a les famílies.</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
+        <!-- Estatuts -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start gap-4">
+          <div class="text-4xl shrink-0">📜</div>
+          <div>
+            <h3 class="text-xl font-bold text-brand-blue mb-2">Estatuts i Reglament</h3>
+            <p class="text-sm text-slate-600 mb-4">Els documents fundacionals i de règim intern que marquen el funcionament de l'Associació.</p>
+            <a href="#" class="text-brand-light font-medium hover:underline flex items-center gap-1">Descarregar Estatuts PDF &darr;</a>
+          </div>
+        </div>
+
+        <!-- Actes -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start gap-4">
+          <div class="text-4xl shrink-0">🗂️</div>
+          <div>
+            <h3 class="text-xl font-bold text-brand-blue mb-2">Actes d'Assemblees</h3>
+            <p class="text-sm text-slate-600 mb-4">Acords presos a les Assemblees Generals (documents anonimitzats per protecció de dades).</p>
+            <div class="space-y-2 text-sm">
+              <a href="#" class="block text-brand-light font-medium hover:underline">Acta Assemblea Octubre 2025</a>
+              <a href="#" class="block text-brand-light font-medium hover:underline">Acta Assemblea Juny 2025</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Economia -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start gap-4">
+          <div class="text-4xl shrink-0">📊</div>
+          <div>
+            <h3 class="text-xl font-bold text-brand-blue mb-2">Informació Econòmica</h3>
+            <p class="text-sm text-slate-600 mb-4">Consulta dels pressupostos anuals aprovats, els balanços de les comissions i l'estat de comptes.</p>
+            <a href="#" class="text-brand-light font-medium hover:underline flex items-center gap-1">Veure Pressupost Actual &darr;</a>
+          </div>
+        </div>
+
+        <!-- Formularis -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start gap-4">
+          <div class="text-4xl shrink-0">📝</div>
+          <div>
+            <h3 class="text-xl font-bold text-brand-blue mb-2">Formularis Útils</h3>
+            <p class="text-sm text-slate-600 mb-4">Descàrrega de documents per a tràmits comuns com inscripcions o cobraments.</p>
+            <div class="space-y-2 text-sm">
+              <a href="#" class="block text-brand-light font-medium hover:underline">Ordre de Domiciliació (SEPA)</a>
+              <a href="#" class="block text-brand-light font-medium hover:underline">Autorització de sortides</a>
+              <a href="#" class="block text-brand-light font-medium hover:underline">Inscripció a l'AFA</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</Layout>

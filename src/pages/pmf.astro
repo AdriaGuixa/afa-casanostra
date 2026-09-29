@@ -1,0 +1,56 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Dades estàtiques per les PMF (es podria passar a col·leccions del CMS en el futur)
+const faqs = [
+  {
+    q: "Com em puc fer soci de l'AFA?",
+    a: "Pots fer-te soci omplint el formulari d'inscripció que us facilitem des de l'escola o contactant amb nosaltres a través d'aquesta web. Un cop abonada la quota anual, ja constareu com a família sòcia."
+  },
+  {
+    q: "Quina vigència té la quota de l'AFA?",
+    a: "La quota té una vigència anual i correspon a un curs acadèmic sencer (de setembre a agost)."
+  },
+  {
+    q: "Si tinc més d'un fill a l'escola, he de pagar diverses quotes?",
+    a: "No, la quota de l'AFA és per unitat familiar, independentment del nombre de fills o filles que tinguis matriculats al centre."
+  },
+  {
+    q: "On puc aconseguir el meu carnet digital de soci?",
+    a: "Un cop realitzat el pagament de la quota, l'AFA us enviarà per correu electrònic el vostre carnet digital amb el codi QR per poder-vos beneficiar dels descomptes a la botiga de llibres i comerços adherits."
+  },
+  {
+    q: "Com ens apuntem al servei de menjador o d'acollida?",
+    a: "Tota la informació sobre preus i el formulari per apuntar-s'hi com a fix o esporàdic es troba a l'apartat 'Serveis > Menjador'."
+  }
+];
+---
+
+<Layout title="Preguntes Freqüents (PMF)">
+  <div class="max-w-3xl mx-auto px-4 py-12">
+    <h1 class="text-4xl font-bold text-brand-blue mb-8 text-center">Preguntes Més Freqüents (PMF)</h1>
+    
+    <div class="space-y-4">
+      {faqs.map((faq, index) => (
+        <details class="group bg-white border border-slate-200 rounded-lg shadow-sm [&_summary::-webkit-details-marker]:hidden">
+          <summary class="flex cursor-pointer items-center justify-between p-4 font-bold text-slate-800">
+            <span>{faq.q}</span>
+            <span class="transition group-open:rotate-180">
+              <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+            </span>
+          </summary>
+          <div class="px-4 pb-4 text-slate-600">
+            {faq.a}
+          </div>
+        </details>
+      ))}
+    </div>
+
+    <div class="mt-12 text-center">
+      <p class="text-slate-600 mb-4">No has trobat el que buscaves?</p>
+      <a href="/contacte" class="inline-block bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-2 px-6 rounded-lg transition">
+        Contacta amb nosaltres
+      </a>
+    </div>
+  </div>
+</Layout>

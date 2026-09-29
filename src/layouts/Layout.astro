@@ -14,27 +14,47 @@ const { title } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title} - AFA Casa Nostra</title>
+    <!-- Utilitzarem l'URL real del logo per l'icona -->
     <link rel="icon" type="image/png" href="http://www.escolacasanostra.cat/wp-content/uploads/2019/03/casa-nostra-logo-blau-220x76.png" />
   </head>
   <body class="flex flex-col min-h-screen">
     <header class="bg-white shadow-sm sticky top-0 z-50">
       <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
         <a href="/" class="flex items-center gap-3">
-          <!-- Utilitzem el logo oficial que hem trobat a la web -->
           <img src="http://www.escolacasanostra.cat/wp-content/uploads/2019/03/casa-nostra-logo-blau-220x76.png" alt="Logo Escola Casa Nostra" class="h-12" />
           <div class="font-bold text-xl text-brand-blue leading-tight hidden sm:block">
-            AFA<br/><span class="text-sm font-normal text-slate-500">Casa Nostra Banyoles</span>
+            AFA<br/><span class="text-sm font-normal text-slate-500">Casa Nostra</span>
           </div>
         </a>
-        <nav class="hidden md:flex gap-6 font-medium text-brand-blue">
-          <a href="/afa" class="hover:text-brand-light transition">L'AFA</a>
-          <a href="/serveis/menjador" class="hover:text-brand-light transition">Menjador</a>
-          <a href="/serveis/extraescolars" class="hover:text-brand-light transition">Extraescolars</a>
-          <a href="/noticies" class="hover:text-brand-light transition">Notícies</a>
-          <a href="/contacte" class="hover:text-brand-light transition">Contacte</a>
+        <nav class="hidden md:flex gap-5 font-medium text-brand-blue items-center text-sm lg:text-base">
+          <a href="/afa" class="hover:text-brand-accent transition">L'AFA</a>
+          
+          <!-- Dropdown Serveis simple (CSS hover) -->
+          <div class="relative group">
+            <button class="hover:text-brand-accent transition flex items-center gap-1">
+              Serveis ▾
+            </button>
+            <div class="absolute top-full left-0 mt-2 w-48 bg-white shadow-lg rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all border border-slate-100 flex flex-col overflow-hidden">
+              <a href="/serveis/menjador" class="px-4 py-3 hover:bg-slate-50 border-b border-slate-50">Menjador</a>
+              <a href="/serveis/extraescolars" class="px-4 py-3 hover:bg-slate-50 border-b border-slate-50">Extraescolars</a>
+              <a href="/serveis/llibres" class="px-4 py-3 hover:bg-slate-50 border-b border-slate-50">Llibres de Text</a>
+              <a href="/serveis/tallers" class="px-4 py-3 hover:bg-slate-50">Tallers Famílies</a>
+            </div>
+          </div>
+
+          <a href="/festes" class="hover:text-brand-accent transition">Festes</a>
+          <a href="/actualitat" class="hover:text-brand-accent transition">Actualitat</a>
+          <a href="/botiga" class="hover:text-brand-accent transition">Botiga</a>
+          <a href="/contacte" class="hover:text-brand-accent transition">Contacte</a>
         </nav>
+        
+        <div class="hidden md:flex items-center gap-3">
+          <a href="/contacte" class="bg-brand-blue text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-blue/90 transition text-sm">
+            Fes-te Soci/a
+          </a>
+        </div>
+
         <div class="md:hidden">
-          <!-- Aquí aniria un menú d'hamburguesa per mòbils. El fem simple ara -->
           <button class="text-brand-blue p-2">Menú</button>
         </div>
       </div>
@@ -44,22 +64,35 @@ const { title } = Astro.props;
       <slot />
     </main>
 
-    <footer class="bg-brand-blue text-white mt-12 py-8">
-      <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer class="bg-brand-blue text-white mt-12 py-10">
+      <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
           <h3 class="font-bold text-lg mb-4">AFA Casa Nostra</h3>
           <p class="text-blue-100 text-sm">Escola Casa Nostra<br/>Banyoles / Porqueres</p>
         </div>
         <div>
-          <h3 class="font-bold text-lg mb-4">Enllaços ràpids</h3>
+          <h3 class="font-bold text-lg mb-4">L'Associació</h3>
           <ul class="text-blue-100 text-sm space-y-2">
-            <li><a href="/admin/index.html" class="hover:text-white transition">Accés Pares (Panell)</a></li>
-            <li><a href="http://www.escolacasanostra.cat" target="_blank" class="hover:text-white transition">Web de l'Escola</a></li>
+            <li><a href="/afa" class="hover:text-white transition">Qui som i Comissions</a></li>
+            <li><a href="/documents" class="hover:text-white transition">Transparència i Actes</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-bold text-lg mb-4">Ajuda</h3>
+          <ul class="text-blue-100 text-sm space-y-2">
+            <li><a href="/contacte" class="hover:text-white transition">Formulari de Contacte</a></li>
+            <li><a href="/pmf" class="hover:text-white transition">Preguntes Freqüents</a></li>
+            <li><a href="/admin/index.html" class="hover:text-white transition">Accés Junta (CMS)</a></li>
           </ul>
         </div>
         <div>
           <h3 class="font-bold text-lg mb-4">Contacte</h3>
-          <p class="text-blue-100 text-sm">info@afa-casanostra.cat</p>
+          <p class="text-blue-100 text-sm mb-2">ampa.escolacasanostra@gmail.com</p>
+          <div class="flex gap-3 mt-4">
+            <!-- Xarxes socials placeholders -->
+            <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition">IG</a>
+            <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition">FB</a>
+          </div>
         </div>
       </div>
     </footer>

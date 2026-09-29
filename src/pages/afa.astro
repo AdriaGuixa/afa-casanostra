@@ -2,26 +2,60 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="L'AFA">
+<Layout title="L'AFA (Qui som)">
   <div class="max-w-4xl mx-auto px-4 py-12">
     <h1 class="text-4xl font-bold text-brand-blue mb-8">L'AFA Casa Nostra</h1>
     <div class="prose prose-lg max-w-none text-slate-700">
-      <p>L’Associació de Famílies d’Alumnes (AFA) de l’Escola Casa Nostra de Banyoles i Porqueres som totes les famílies que en formem part i que de manera voluntària i desinteressada treballem per millorar la qualitat de l'educació i les condicions en què s’imparteix.</p>
+      <p>L’Associació de Famílies d’Alumnes (AFA) de l’Escola Casa Nostra actua com a canal de participació fonamental i interlocutor principal amb l'equip directiu i la resta de la comunitat educativa.</p>
       
-      <h2 class="text-2xl font-semibold text-brand-blue mt-8 mb-4">Què fem?</h2>
-      <ul class="list-disc pl-6 space-y-2 mb-8">
-        <li>Gestionem el servei de menjador escolar.</li>
-        <li>Organitzem les activitats extraescolars.</li>
-        <li>Col·laborem en les festes de l'escola (Castanyada, Carnestoltes, Final de Curs).</li>
-        <li>Oferim el servei d'acollida matinal i de tarda per facilitar la conciliació.</li>
+      <h2 class="text-2xl font-semibold text-brand-blue mt-8 mb-4">La Junta Directiva</h2>
+      <p>L'AFA s'organitza a través d'una Junta Directiva formada per mares i pares voluntaris que coordinen les diferents àrees d'actuació de l'associació:</p>
+      <ul class="list-disc pl-6 space-y-1 mb-8">
+        <li><strong>Presidència:</strong> Representació legal i coordinació general.</li>
+        <li><strong>Vicepresidència:</strong> Suport a presidència i gestió de projectes.</li>
+        <li><strong>Tresoreria:</strong> Gestió econòmica i comptable.</li>
+        <li><strong>Secretaria:</strong> Actes, gestió de socis i comunicacions oficials.</li>
+        <li><strong>Vocalies:</strong> Representants de cada comissió de treball.</li>
       </ul>
 
+      <h2 class="text-2xl font-semibold text-brand-blue mt-8 mb-4">Comissions de Treball</h2>
+      <p>La feina de l'AFA es divideix en comissions actives. Totes les famílies hi estan convidades a participar!</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-8">
+        <div class="p-4 border border-slate-200 rounded-lg">
+          <h3 class="font-bold text-brand-blue text-lg mb-2">Patis i Manteniment</h3>
+          <p class="text-sm">Vetlla pel manteniment i millora dels espais d'esbarjo, aportant material lúdic i acadèmic.</p>
+        </div>
+        <div class="p-4 border border-slate-200 rounded-lg">
+          <h3 class="font-bold text-brand-blue text-lg mb-2">Festes i Activitats</h3>
+          <p class="text-sm">Organització de festes com Carnestoltes, Castanyada, Pessebre Vivent i Festa de Final de Curs.</p>
+        </div>
+        <div class="p-4 border border-slate-200 rounded-lg">
+          <h3 class="font-bold text-brand-blue text-lg mb-2">Comunicació</h3>
+          <p class="text-sm">Gestió de la web, correu electrònic, delegats de classe i xarxes socials per garantir la transparència.</p>
+        </div>
+        <div class="p-4 border border-slate-200 rounded-lg">
+          <h3 class="font-bold text-brand-blue text-lg mb-2">Menjador</h3>
+          <p class="text-sm">Supervisió de l'espai migdia, contacte amb l'empresa gestora i atenció als dubtes de les famílies.</p>
+        </div>
+        <div class="p-4 border border-slate-200 rounded-lg">
+          <h3 class="font-bold text-brand-blue text-lg mb-2">Eduquem en Família</h3>
+          <p class="text-sm">Organització de xerrades, tallers i jornades de formació adreçades exclusivament a mares i pares.</p>
+        </div>
+        <div class="p-4 border border-slate-200 rounded-lg">
+          <h3 class="font-bold text-brand-blue text-lg mb-2">Consell Esportiu</h3>
+          <p class="text-sm">Coordinació amb entitats esportives de Banyoles/Porqueres i foment de l'esport escolar.</p>
+        </div>
+      </div>
+
       <div class="bg-brand-light/10 p-6 rounded-lg border border-brand-light/20 mt-8">
-        <h3 class="text-xl font-bold text-brand-blue mb-2">Fes-te soci/a!</h3>
-        <p class="mb-4">Ser soci/a de l'AFA et permet gaudir de descomptes en els serveis i activitats, a més d'ajudar-nos a tirar endavant els projectes de l'escola.</p>
-        <button class="bg-brand-blue text-white font-medium py-2 px-6 rounded hover:bg-brand-blue/90 transition">
-          Descarregar Formulari d'Inscripció
-        </button>
+        <h3 class="text-xl font-bold text-brand-blue mb-2">Fes-te soci/a o forma part d'una comissió!</h3>
+        <p class="mb-4">El teu temps i aportació són essencials per poder dur a terme tots aquests projectes.</p>
+        <div class="flex gap-4">
+          <a href="/contacte" class="bg-brand-blue text-white font-medium py-2 px-6 rounded hover:bg-brand-blue/90 transition">
+            Inscriu-te a una comissió
+          </a>
+        </div>
       </div>
     </div>
   </div>
