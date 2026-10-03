@@ -1,0 +1,106 @@
+---
+import Layout from '../layouts/Layout.astro';
+import settings from '../data/settings.json';
+
+const csvUrl = settings.socis_csv_url || '';
+---
+
+<Layout title="Validació de Carnet">
+  <div class="min-h-[70vh] flex flex-col items-center justify-center px-4 bg-slate-50">
+    <div id="validation-card" class="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full text-center border-t-8 border-slate-300 transition-colors duration-500">
+      
+      <div id="loading" class="block">
+        <div class="animate-spin w-16 h-16 border-4 border-brand-light border-t-transparent rounded-full mx-auto mb-6"></div>
+        <h2 class="text-2xl font-bold text-slate-700">Validant carnet...</h2>
+        <p class="text-slate-500 mt-2">Connectant amb la base de dades de l'AFA</p>
+      </div>
+
+      <div id="success" class="hidden">
+        <div class="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">
+          ✓
+        </div>
+        <h2 class="text-3xl font-extrabold text-green-700 mb-2">SOCI ACTIU</h2>
+        <p class="text-slate-600 text-lg mb-4">Aquest carnet és totalment vàlid per al curs actual.</p>
+        <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 mt-6">
+          <p class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">Codi Identificador</p>
+          <p id="success-id" class="text-xl font-mono font-bold text-slate-700">---</p>
+        </div>
+      </div>
+
+      <div id="error" class="hidden">
+        <div class="w-24 h-24 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">
+          ✕
+        </div>
+        <h2 class="text-3xl font-extrabold text-red-700 mb-2">NO VÀLID</h2>
+        <p class="text-slate-600 text-lg">No s'ha trobat aquest codi a la llista de socis actius d'aquest curs, o bé hi ha un error.</p>
+        <p class="text-sm text-slate-500 mt-6 italic">Si creus que és un error, si us plau, contacta amb l'AFA.</p>
+      </div>
+
+      <div id="missing-url" class="hidden">
+        <div class="w-24 h-24 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">
+          ⚠️
+        </div>
+        <h2 class="text-2xl font-bold text-orange-700 mb-2">Sistema no configurat</h2>
+        <p class="text-slate-600">La Junta encara no ha enllaçat el document de socis al panell d'administració.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <script define:vars={{ csvUrl }}>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sociId = urlParams.get('id');
+      
+      const loadingEl = document.getElementById('loading');
+      const successEl = document.getElementById('success');
+      const errorEl = document.getElementById('error');
+      const missingUrlEl = document.getElementById('missing-url');
+      const cardEl = document.getElementById('validation-card');
+      const idDisplayEl = document.getElementById('success-id');
+
+      // Si no hi ha URL configurada al CMS
+      if (!csvUrl || csvUrl.trim() === '') {
+        loadingEl.classList.add('hidden');
+        missingUrlEl.classList.remove('hidden');
+        cardEl.classList.replace('border-slate-300', 'border-orange-400');
+        return;
+      }
+
+      // Si escanegen la pàgina sense cap ID al link
+      if (!sociId) {
+        loadingEl.classList.add('hidden');
+        errorEl.classList.remove('hidden');
+        cardEl.classList.replace('border-slate-300', 'border-red-500');
+        return;
+      }
+
+      try {
+        // Obtenim el CSV de Google Sheets
+        const response = await fetch(csvUrl);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const csvText = await response.text();
+        
+        // Comprovació simple: mirem si l'ID exacte existeix en algun lloc del document
+        // Això assumeix que els IDs són prou únics (ex: AFA-2025-001)
+        const isSoci = csvText.includes(sociId);
+
+        loadingEl.classList.add('hidden');
+
+        if (isSoci) {
+          successEl.classList.remove('hidden');
+          cardEl.classList.replace('border-slate-300', 'border-green-500');
+          idDisplayEl.textContent = sociId;
+        } else {
+          errorEl.classList.remove('hidden');
+          cardEl.classList.replace('border-slate-300', 'border-red-500');
+        }
+      } catch (error) {
+        console.error('Error validant el soci:', error);
+        loadingEl.classList.add('hidden');
+        errorEl.classList.remove('hidden');
+        cardEl.classList.replace('border-slate-300', 'border-red-500');
+      }
+    });
+  </script>
+</Layout>

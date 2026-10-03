@@ -37,3 +37,12 @@ collections:
       - {label: "Títol", name: "title", widget: "string"}
       - {label: "Arxiu PDF", name: "file", widget: "file"}
       - {label: "Secció", name: "tipus", widget: "select", options: ["Estatuts i RRI", "Actes d'Assemblea", "Informació Econòmica", "Formularis", "Altres"]}
+
+  - name: "configuracio"
+    label: "Configuració Interna"
+    files:
+      - file: "src/data/settings.json"
+        label: "Sistema de Validació de Socis"
+        name: "settings"
+        fields:
+          - {label: "Enllaç CSV de Google Sheets (Llista de Socis Actius)", name: "socis_csv_url", widget: "string", required: false, hint: "Ves al teu Google Sheets d'inscrits > Fitxer > Comparteix > Publica a la web > Tria CSV i enganxa l'enllaç aquí."}
