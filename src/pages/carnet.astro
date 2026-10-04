@@ -4,7 +4,6 @@ import Layout from '../layouts/Layout.astro';
 
 <Layout title="El Meu Carnet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js" is:inline></script>
-  <!-- Nova llibreria per generar el QR directament al navegador (Molt més ràpid i fiable) -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js" is:inline></script>
 
   <div class="min-h-[80vh] flex flex-col items-center justify-center px-4 bg-slate-50 py-12">
@@ -43,9 +42,9 @@ import Layout from '../layouts/Layout.astro';
         </div>
         
         <div class="p-6 bg-white flex flex-col items-center">
-          <!-- Utilitzem un CANVAS pur perquè Safari no ho bloquegi en descarregar -->
+          <!-- Torna a ser IMG pur perquè html-to-image clonarà millor les dades de la imatge que les del canvas -->
           <div id="qr-container" class="bg-white p-2 rounded-xl border-2 border-slate-100 shadow-sm mb-6 flex justify-center items-center" style="width: 200px; height: 200px;">
-            <canvas id="qr-canvas"></canvas>
+            <img id="qr-image" src="" alt="Codi QR" class="w-full h-full object-contain" />
           </div>
           
           <div class="w-full text-center">
@@ -92,7 +91,7 @@ import Layout from '../layouts/Layout.astro';
       const loginSection = document.getElementById('login-section');
       const resultSection = document.getElementById('result-section');
       
-      const qrCanvas = document.getElementById('qr-canvas');
+      const qrImage = document.getElementById('qr-image');
       const cardNames = document.getElementById('card-names');
       const cardId = document.getElementById('card-id');
       const downloadBtn = document.getElementById('download-btn');
@@ -115,17 +114,19 @@ import Layout from '../layouts/Layout.astro';
             
             const validationUrl = `${window.location.origin}/validar?id=${encodeURIComponent(data.codi)}`;
             
-            // Generem el QR localment dins del Canvas
-            QRCode.toCanvas(qrCanvas, validationUrl, {
+            // Creem un DataURL pur (Base64) amb la llibreria QR local
+            // Això soluciona el problema de clonació del Canvas de Safari
+            QRCode.toDataURL(validationUrl, {
               width: 180,
               margin: 1,
               color: {
                 dark: '#000000',
                 light: '#ffffff'
               }
-            }, function (error) {
+            }, function (error, url) {
               if (error) console.error("Error generant QR:", error);
               
+              qrImage.src = url; // Injectem el Base64 directament a l'IMG
               cardId.textContent = data.codi;
               cardNames.innerHTML = data.titulars.map(nom => `<li>${nom}</li>`).join('');
               
