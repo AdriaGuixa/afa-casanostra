@@ -1,8 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import settings from '../data/settings.json';
-
-const csvUrl = settings.socis_csv_url || '';
 ---
 
 <Layout title="Validació de Carnet">
@@ -12,7 +9,7 @@ const csvUrl = settings.socis_csv_url || '';
       <div id="loading" class="block">
         <div class="animate-spin w-16 h-16 border-4 border-brand-light border-t-transparent rounded-full mx-auto mb-6"></div>
         <h2 class="text-2xl font-bold text-slate-700">Validant carnet...</h2>
-        <p class="text-slate-500 mt-2">Connectant amb la base de dades de l'AFA</p>
+        <p class="text-slate-500 mt-2">Connectant de forma segura amb l'AFA</p>
       </div>
 
       <div id="success" class="hidden">
@@ -46,27 +43,13 @@ const csvUrl = settings.socis_csv_url || '';
           ✕
         </div>
         <h2 class="text-3xl font-extrabold text-red-700 mb-2">NO VÀLID</h2>
-        <p class="text-slate-600 text-lg">No s'ha trobat aquest codi a la llista de socis actius, o bé hi ha un error.</p>
+        <p id="error-message" class="text-slate-600 text-lg">No s'ha trobat aquest codi a la llista de socis actius, o bé hi ha un error.</p>
         <p class="text-sm text-slate-500 mt-6 italic">Si creus que és un error, si us plau, contacta amb l'AFA.</p>
       </div>
-
-      <div id="missing-url" class="hidden">
-        <div class="w-24 h-24 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">
-          ⚠️
-        </div>
-        <h2 class="text-2xl font-bold text-orange-700 mb-2">Sistema no configurat</h2>
-        <p class="text-slate-600">La Junta encara no ha enllaçat el document de socis al panell d'administració.</p>
-      </div>
-
     </div>
   </div>
 
-  <script define:vars={{ csvUrl }}>
-    function cleanCsvValue(val) {
-      if (!val) return '';
-      return val.trim().replace(/^"|"$/g, '').trim();
-    }
-
+  <script>
     document.addEventListener("DOMContentLoaded", async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const sociId = urlParams.get('id');
@@ -74,77 +57,59 @@ const csvUrl = settings.socis_csv_url || '';
       const loadingEl = document.getElementById('loading');
       const successEl = document.getElementById('success');
       const errorEl = document.getElementById('error');
-      const missingUrlEl = document.getElementById('missing-url');
+      const errorMessageEl = document.getElementById('error-message');
       const cardEl = document.getElementById('validation-card');
       const idDisplayEl = document.getElementById('success-id');
       const namesListEl = document.getElementById('success-names-list');
 
-      if (!csvUrl || csvUrl.trim() === '') {
-        loadingEl.classList.add('hidden');
-        missingUrlEl.classList.remove('hidden');
-        cardEl.classList.replace('border-slate-300', 'border-orange-400');
-        return;
-      }
-
       if (!sociId) {
         loadingEl.classList.add('hidden');
         errorEl.classList.remove('hidden');
+        errorMessageEl.textContent = "No s'ha escanejat cap codi vàlid.";
         cardEl.classList.replace('border-slate-300', 'border-red-500');
         return;
       }
 
       try {
-        const response = await fetch(csvUrl);
-        if (!response.ok) throw new Error('Network response was not ok');
-        const csvText = await response.text();
+        // Trucada segura al nostre servidor privat (Funció Netlify)
+        const response = await fetch(`/.netlify/functions/validar-soci?id=${encodeURIComponent(sociId)}`);
+        const data = await response.json();
         
-        const rows = csvText.split('\n');
-        let progenitor1 = null;
-        let progenitor2 = null;
-        let isSoci = false;
-
-        for (let i = 0; i < rows.length; i++) {
-          const cols = rows[i].split(',');
-          if (cols.length >= 2) {
-            const colId = cleanCsvValue(cols[0]);
-            if (colId === cleanCsvValue(sociId)) {
-              isSoci = true;
-              progenitor1 = cleanCsvValue(cols[1]); // Columna B
-              if (cols.length >= 3) {
-                progenitor2 = cleanCsvValue(cols[2]); // Columna C
-              }
-              break;
-            }
-          }
-        }
-
         loadingEl.classList.add('hidden');
 
-        if (isSoci) {
+        // Si la resposta és 500 (Sistema no configurat)
+        if (response.status === 500) {
+           errorEl.classList.remove('hidden');
+           cardEl.classList.replace('border-slate-300', 'border-orange-500');
+           errorMessageEl.textContent = "El sistema de validació encara no està configurat per la Junta.";
+           return;
+        }
+
+        if (data.valid) {
           successEl.classList.remove('hidden');
           cardEl.classList.replace('border-slate-300', 'border-green-500');
           idDisplayEl.textContent = sociId;
           
           namesListEl.innerHTML = '';
-          if (progenitor1) {
-            namesListEl.innerHTML += `<li class="flex items-center gap-2"><span class="text-brand-light">👤</span><span class="font-bold text-slate-800 text-lg">${progenitor1}</span></li>`;
-          }
-          if (progenitor2 && progenitor2.length > 0) {
-            namesListEl.innerHTML += `<li class="flex items-center gap-2"><span class="text-brand-light">👤</span><span class="font-bold text-slate-800 text-lg">${progenitor2}</span></li>`;
-          }
-          if (!progenitor1 && (!progenitor2 || progenitor2.length === 0)) {
+          if (data.titulars && data.titulars.length > 0) {
+            data.titulars.forEach(nom => {
+              namesListEl.innerHTML += `<li class="flex items-center gap-2"><span class="text-brand-light">👤</span><span class="font-bold text-slate-800 text-lg">${nom}</span></li>`;
+            });
+          } else {
              namesListEl.innerHTML += `<li class="text-slate-500 italic">Sense noms registrats</li>`;
           }
 
         } else {
           errorEl.classList.remove('hidden');
           cardEl.classList.replace('border-slate-300', 'border-red-500');
+          errorMessageEl.textContent = "No s'ha trobat aquest codi a la llista de socis actius d'aquest curs.";
         }
       } catch (error) {
         console.error('Error validant el soci:', error);
         loadingEl.classList.add('hidden');
         errorEl.classList.remove('hidden');
         cardEl.classList.replace('border-slate-300', 'border-red-500');
+        errorMessageEl.textContent = "Hi ha hagut un problema de connexió amb el servidor.";
       }
     });
   </script>
