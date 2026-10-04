@@ -1,0 +1,138 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="El Meu Carnet">
+  <div class="min-h-[80vh] flex flex-col items-center justify-center px-4 bg-slate-50 py-12">
+    
+    <!-- Formulari d'Accés -->
+    <div id="login-section" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 max-w-md w-full">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-brand-blue mb-2">El teu Carnet Digital</h1>
+        <p class="text-slate-600">Introdueix les teves dades per generar i descarregar el teu carnet de l'AFA.</p>
+      </div>
+
+      <form id="carnet-form" class="space-y-5">
+        <div>
+          <label for="dni" class="block text-sm font-medium text-slate-700 mb-1">DNI (amb lletra)</label>
+          <input type="text" id="dni" required class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-light focus:border-brand-light outline-none" placeholder="Ex: 12345678A" />
+        </div>
+        <div>
+          <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Correu electrònic</label>
+          <input type="email" id="email" required class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-light focus:border-brand-light outline-none" placeholder="correu@exemple.com" />
+        </div>
+        <button type="submit" id="submit-btn" class="w-full bg-brand-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-brand-blue/90 transition shadow-sm flex justify-center items-center gap-2">
+          <span>Generar Carnet</span>
+        </button>
+        <p id="error-msg" class="text-red-500 text-sm text-center hidden mt-2"></p>
+      </form>
+    </div>
+
+    <!-- Carnet Generat -->
+    <div id="result-section" class="hidden flex-col items-center max-w-sm w-full">
+      
+      <!-- La Targeta (S'hi farà captura) -->
+      <div id="carnet-card" class="bg-white rounded-2xl shadow-xl overflow-hidden w-full relative border border-slate-200">
+        <!-- Capçalera Blava -->
+        <div class="bg-brand-blue p-6 text-white text-center flex flex-col items-center">
+          <img src="http://www.escolacasanostra.cat/wp-content/uploads/2019/03/casa-nostra-logo-blau-220x76.png" alt="AFA Logo" class="h-10 mb-4 brightness-0 invert opacity-90" />
+          <h2 class="text-xl font-bold tracking-widest uppercase">Carnet de Soci</h2>
+          <p class="text-blue-200 text-sm mt-1">Curs 2025-2026</p>
+        </div>
+        
+        <!-- Cos -->
+        <div class="p-6 bg-white flex flex-col items-center">
+          <!-- Codi QR Dibuixat aquí -->
+          <div id="qr-container" class="bg-white p-2 rounded-xl border-2 border-slate-100 shadow-sm mb-6">
+            <img id="qr-image" src="" alt="Codi QR" class="w-48 h-48" />
+          </div>
+          
+          <div class="w-full text-center">
+            <p class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-2">Família Autoritzada</p>
+            <ul id="card-names" class="text-lg font-bold text-brand-blue mb-4 leading-tight">
+              <!-- Noms dinàmics -->
+            </ul>
+            <div class="bg-slate-50 border border-slate-100 py-2 px-4 rounded-lg inline-block">
+              <span class="text-xs text-slate-500 uppercase">Codi: </span>
+              <span id="card-id" class="font-mono font-bold text-slate-700"></span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Peu -->
+        <div class="bg-brand-light/10 text-center py-3 text-xs text-brand-blue font-medium">
+          Vàlid per a descomptes i festes AFA
+        </div>
+      </div>
+
+      <!-- Botons d'acció fora de la targeta -->
+      <div class="mt-8 w-full space-y-4 text-center">
+        <div class="bg-yellow-50 text-yellow-800 p-4 rounded-xl text-sm border border-yellow-200">
+          <strong>📸 Com desar-lo:</strong><br/>
+          Fes una <b>captura de pantalla</b> d'aquesta targeta o mantén-la premuda per desar-la com a imatge a la teva galeria.
+        </div>
+        <button onclick="window.location.reload()" class="text-brand-light font-medium hover:underline text-sm">
+          Tornar enrere
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById('carnet-form');
+      const submitBtn = document.getElementById('submit-btn');
+      const errorMsg = document.getElementById('error-msg');
+      
+      const loginSection = document.getElementById('login-section');
+      const resultSection = document.getElementById('result-section');
+      
+      const qrImage = document.getElementById('qr-image');
+      const cardNames = document.getElementById('card-names');
+      const cardId = document.getElementById('card-id');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const dni = document.getElementById('dni').value;
+        const email = document.getElementById('email').value;
+        
+        errorMsg.classList.add('hidden');
+        submitBtn.innerHTML = 'Generant...';
+        submitBtn.disabled = true;
+
+        try {
+          const response = await fetch(`/.netlify/functions/descarregar-carnet?dni=${encodeURIComponent(dni)}&email=${encodeURIComponent(email)}`);
+          const data = await response.json();
+          
+          if (response.ok && data.valid) {
+            // Generem URL per al QR
+            const validationUrl = `https://ampacasanostra.org/validar?id=${encodeURIComponent(data.codi)}`;
+            // Usem l'API lliure de qrserver
+            qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(validationUrl)}&margin=10`;
+            
+            // Omplim dades
+            cardId.textContent = data.codi;
+            cardNames.innerHTML = data.titulars.map(nom => `<li>${nom}</li>`).join('');
+            
+            // Canviem vista
+            loginSection.classList.add('hidden');
+            resultSection.classList.remove('hidden');
+            resultSection.classList.add('flex');
+          } else {
+            errorMsg.textContent = data.error || "Dades incorrectes. Revisa el teu DNI i Correu.";
+            errorMsg.classList.remove('hidden');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          errorMsg.textContent = "Error de connexió. Torna-ho a provar més tard.";
+          errorMsg.classList.remove('hidden');
+        } finally {
+          submitBtn.innerHTML = 'Generar Carnet';
+          submitBtn.disabled = false;
+        }
+      });
+    });
+  </script>
+</Layout>

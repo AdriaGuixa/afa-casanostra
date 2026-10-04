@@ -37,14 +37,16 @@ exports.handler = async function (event, context) {
     for (let i = 0; i < rows.length; i++) {
       const cols = rows[i].split(',');
       if (cols.length >= 2) {
-        const colId = cleanCsvValue(cols[0]);
+        const colId = cleanCsvValue(cols[0]); // Col A
         if (colId === cleanCsvValue(sociId)) {
           isSoci = true;
-          const progenitor1 = cleanCsvValue(cols[1]);
+          
+          const progenitor1 = cleanCsvValue(cols[1]); // Col B
           if (progenitor1) titulars.push(progenitor1);
           
-          if (cols.length >= 3) {
-            const progenitor2 = cleanCsvValue(cols[2]);
+          // El Progenitor 2 ara està a la Columna E (índex 4)
+          if (cols.length >= 5) {
+            const progenitor2 = cleanCsvValue(cols[4]); // Col E
             if (progenitor2) titulars.push(progenitor2);
           }
           break; // Un cop trobat, parem de buscar
