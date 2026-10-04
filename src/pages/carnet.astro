@@ -3,8 +3,9 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="El Meu Carnet">
-  <!-- Usem html-to-image, molt més modern i compatible amb Safari/iOS que html2canvas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js" is:inline></script>
+  <!-- Nova llibreria per generar el QR directament al navegador (Molt més ràpid i fiable) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" is:inline></script>
 
   <div class="min-h-[80vh] flex flex-col items-center justify-center px-4 bg-slate-50 py-12">
     
@@ -34,7 +35,6 @@ import Layout from '../layouts/Layout.astro';
       
       <div id="carnet-card" class="bg-white rounded-2xl shadow-xl overflow-hidden w-full relative border border-slate-200">
         <div class="bg-brand-blue p-6 text-white text-center flex flex-col items-center">
-          <!-- Eliminem els filtres CSS conflictius per a iOS i posem fons blanc al logo -->
           <div class="bg-white py-2 px-4 rounded-xl mb-4 shadow-sm inline-block">
             <img src="/images/logo-afa.png" alt="AFA Logo" class="h-8" />
           </div>
@@ -43,9 +43,9 @@ import Layout from '../layouts/Layout.astro';
         </div>
         
         <div class="p-6 bg-white flex flex-col items-center">
-          <!-- El QR el carregarem com a DataURL Base64 per ser 100% segurs amb les exportacions -->
-          <div id="qr-container" class="bg-white p-2 rounded-xl border-2 border-slate-100 shadow-sm mb-6">
-            <img id="qr-image" src="" alt="Codi QR" class="w-48 h-48" />
+          <!-- Utilitzem un CANVAS pur perquè Safari no ho bloquegi en descarregar -->
+          <div id="qr-container" class="bg-white p-2 rounded-xl border-2 border-slate-100 shadow-sm mb-6 flex justify-center items-center" style="width: 200px; height: 200px;">
+            <canvas id="qr-canvas"></canvas>
           </div>
           
           <div class="w-full text-center">
@@ -92,7 +92,7 @@ import Layout from '../layouts/Layout.astro';
       const loginSection = document.getElementById('login-section');
       const resultSection = document.getElementById('result-section');
       
-      const qrImage = document.getElementById('qr-image');
+      const qrCanvas = document.getElementById('qr-canvas');
       const cardNames = document.getElementById('card-names');
       const cardId = document.getElementById('card-id');
       const downloadBtn = document.getElementById('download-btn');
@@ -114,16 +114,17 @@ import Layout from '../layouts/Layout.astro';
           if (response.ok && data.valid) {
             
             const validationUrl = `${window.location.origin}/validar?id=${encodeURIComponent(data.codi)}`;
-            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(validationUrl)}&margin=10`;
             
-            // Per evitar problemes amb Safari i la creació d'imatges, convertim el QR a Base64 absolut
-            const qrRes = await fetch(qrApiUrl);
-            const qrBlob = await qrRes.blob();
-            
-            const reader = new FileReader();
-            reader.readAsDataURL(qrBlob);
-            reader.onloadend = () => {
-              qrImage.src = reader.result;
+            // Generem el QR localment dins del Canvas
+            QRCode.toCanvas(qrCanvas, validationUrl, {
+              width: 180,
+              margin: 1,
+              color: {
+                dark: '#000000',
+                light: '#ffffff'
+              }
+            }, function (error) {
+              if (error) console.error("Error generant QR:", error);
               
               cardId.textContent = data.codi;
               cardNames.innerHTML = data.titulars.map(nom => `<li>${nom}</li>`).join('');
@@ -131,7 +132,8 @@ import Layout from '../layouts/Layout.astro';
               loginSection.classList.add('hidden');
               resultSection.classList.remove('hidden');
               resultSection.classList.add('flex');
-            };
+            });
+            
           } else {
             errorMsg.textContent = data.error || "Dades incorrectes. Revisa el teu DNI i Correu.";
             errorMsg.classList.remove('hidden');
@@ -153,7 +155,6 @@ import Layout from '../layouts/Layout.astro';
         downloadBtn.innerHTML = 'Processant Imatge...';
         downloadBtn.disabled = true;
 
-        // html-to-image és modern i no falla amb Safari ni propietats CSS recents
         window.htmlToImage.toPng(cardElement, { pixelRatio: 3, backgroundColor: '#ffffff' })
           .then(function (dataUrl) {
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
