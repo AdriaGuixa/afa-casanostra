@@ -3,8 +3,8 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="El Meu Carnet">
-  <!-- Usem html2canvas però assegurem que les imatges són locals (Blob) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" is:inline></script>
+  <!-- Usem html-to-image, molt més modern i compatible amb Safari/iOS que html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js" is:inline></script>
 
   <div class="min-h-[80vh] flex flex-col items-center justify-center px-4 bg-slate-50 py-12">
     
@@ -32,16 +32,18 @@ import Layout from '../layouts/Layout.astro';
 
     <div id="result-section" class="hidden flex-col items-center max-w-sm w-full">
       
-      <!-- Eliminem el crossorigin del logo ja que és local -->
       <div id="carnet-card" class="bg-white rounded-2xl shadow-xl overflow-hidden w-full relative border border-slate-200">
         <div class="bg-brand-blue p-6 text-white text-center flex flex-col items-center">
-          <img src="/images/logo-afa.png" alt="AFA Logo" class="h-10 mb-4 brightness-0 invert opacity-90" />
+          <!-- Eliminem els filtres CSS conflictius per a iOS i posem fons blanc al logo -->
+          <div class="bg-white py-2 px-4 rounded-xl mb-4 shadow-sm inline-block">
+            <img src="/images/logo-afa.png" alt="AFA Logo" class="h-8" />
+          </div>
           <h2 class="text-xl font-bold tracking-widest uppercase">Carnet de l'AFA</h2>
           <p class="text-blue-200 text-sm mt-1">Curs 2025-2026</p>
         </div>
         
         <div class="p-6 bg-white flex flex-col items-center">
-          <!-- El QR el carregarem com a Blob per evitar problemes CORS al Canvas -->
+          <!-- El QR el carregarem com a DataURL Base64 per ser 100% segurs amb les exportacions -->
           <div id="qr-container" class="bg-white p-2 rounded-xl border-2 border-slate-100 shadow-sm mb-6">
             <img id="qr-image" src="" alt="Codi QR" class="w-48 h-48" />
           </div>
@@ -49,7 +51,6 @@ import Layout from '../layouts/Layout.astro';
           <div class="w-full text-center">
             <p class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-2">Família Autoritzada</p>
             <ul id="card-names" class="text-lg font-bold text-brand-blue mb-4 leading-tight">
-              <!-- Noms dinàmics -->
             </ul>
             <div class="bg-slate-50 border border-slate-100 py-2 px-4 rounded-lg inline-block">
               <span class="text-xs text-slate-500 uppercase">Codi: </span>
@@ -71,7 +72,7 @@ import Layout from '../layouts/Layout.astro';
         </button>
 
         <div class="text-slate-500 text-xs mt-2">
-          O mantén premuda la targeta per desar-la manualment.
+          O fes una captura de pantalla normal del telèfon.
         </div>
 
         <button onclick="window.location.reload()" class="text-brand-light font-medium hover:underline text-sm mt-4">
@@ -112,21 +113,25 @@ import Layout from '../layouts/Layout.astro';
           
           if (response.ok && data.valid) {
             
-            // Per evitar l'error de CORS al descarregar la imatge (Safari és molt restrictiu),
-            // descarreguem el QR com a "Blob" (arxiu local) en comptes de posar la URL directa.
             const validationUrl = `${window.location.origin}/validar?id=${encodeURIComponent(data.codi)}`;
             const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(validationUrl)}&margin=10`;
             
+            // Per evitar problemes amb Safari i la creació d'imatges, convertim el QR a Base64 absolut
             const qrRes = await fetch(qrApiUrl);
             const qrBlob = await qrRes.blob();
-            qrImage.src = URL.createObjectURL(qrBlob);
             
-            cardId.textContent = data.codi;
-            cardNames.innerHTML = data.titulars.map(nom => `<li>${nom}</li>`).join('');
-            
-            loginSection.classList.add('hidden');
-            resultSection.classList.remove('hidden');
-            resultSection.classList.add('flex');
+            const reader = new FileReader();
+            reader.readAsDataURL(qrBlob);
+            reader.onloadend = () => {
+              qrImage.src = reader.result;
+              
+              cardId.textContent = data.codi;
+              cardNames.innerHTML = data.titulars.map(nom => `<li>${nom}</li>`).join('');
+              
+              loginSection.classList.add('hidden');
+              resultSection.classList.remove('hidden');
+              resultSection.classList.add('flex');
+            };
           } else {
             errorMsg.textContent = data.error || "Dades incorrectes. Revisa el teu DNI i Correu.";
             errorMsg.classList.remove('hidden');
@@ -145,52 +150,45 @@ import Layout from '../layouts/Layout.astro';
         const cardElement = document.getElementById('carnet-card');
         const originalText = downloadBtn.innerHTML;
         
-        downloadBtn.innerHTML = 'Generant Imatge...';
+        downloadBtn.innerHTML = 'Processant Imatge...';
         downloadBtn.disabled = true;
 
-        // Creem el canvas
-        window.html2canvas(cardElement, {
-          scale: 3, // Màxima resolució per mòbils
-          useCORS: true, 
-          backgroundColor: '#ffffff'
-        }).then(canvas => {
-          // Detectem iOS per oferir alternativa si la descàrrega directa falla
-          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        // html-to-image és modern i no falla amb Safari ni propietats CSS recents
+        window.htmlToImage.toPng(cardElement, { pixelRatio: 3, backgroundColor: '#ffffff' })
+          .then(function (dataUrl) {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-          if (isIOS) {
-             // A iOS de vegades l'enllaç no funciona bé, així que ensenyem la imatge final a sobre
-             const imgData = canvas.toDataURL('image/png');
-             const img = new Image();
-             img.src = imgData;
-             img.style.width = '100%';
-             img.style.borderRadius = '1rem';
-             img.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1)';
-             
-             // Substituïm el DOM HTML per la imatge plana
-             cardElement.innerHTML = '';
-             cardElement.appendChild(img);
-             
-             downloadBtn.innerHTML = '✓ Mantén premut el carnet per Desar-lo';
-             downloadBtn.classList.replace('bg-green-600', 'bg-blue-600');
-          } else {
-             // Android / Desktop descarreguen directament sense problemes
-             const link = document.createElement('a');
-             link.download = `Carnet-AFA-${cardId.textContent}.png`;
-             link.href = canvas.toDataURL('image/png');
-             link.click();
-             
-             downloadBtn.innerHTML = '✓ Descarregat!';
-             setTimeout(() => {
-                downloadBtn.innerHTML = originalText;
-                downloadBtn.disabled = false;
-             }, 3000);
-          }
-        }).catch(err => {
-          console.error("Error generant la imatge", err);
-          alert("Hi ha hagut un problema en generar la imatge. Si us plau, fes una captura de pantalla.");
-          downloadBtn.innerHTML = originalText;
-          downloadBtn.disabled = false;
-        });
+            if (isIOS) {
+               const img = new Image();
+               img.src = dataUrl;
+               img.style.width = '100%';
+               img.style.borderRadius = '1rem';
+               img.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1)';
+               
+               cardElement.innerHTML = '';
+               cardElement.appendChild(img);
+               
+               downloadBtn.innerHTML = '✓ Imatge llista. Mantén-la premuda per Desar-la al rodet.';
+               downloadBtn.classList.replace('bg-green-600', 'bg-blue-600');
+            } else {
+               const link = document.createElement('a');
+               link.download = `Carnet-AFA-${cardId.textContent}.png`;
+               link.href = dataUrl;
+               link.click();
+               
+               downloadBtn.innerHTML = '✓ Descarregat!';
+               setTimeout(() => {
+                  downloadBtn.innerHTML = originalText;
+                  downloadBtn.disabled = false;
+               }, 3000);
+            }
+          })
+          .catch(function (error) {
+            console.error('Error html-to-image:', error);
+            alert("S'ha produït un error al generar la imatge. Si us plau, fes una captura de pantalla normal.");
+            downloadBtn.innerHTML = originalText;
+            downloadBtn.disabled = false;
+          });
       });
     });
   </script>
