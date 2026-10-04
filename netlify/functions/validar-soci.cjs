@@ -1,8 +1,6 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
 const settings = require('../../src/data/settings.json');
 
-export const handler = async function (event, context) {
+exports.handler = async function (event, context) {
   const sociId = event.queryStringParameters.id;
 
   if (!sociId) {
