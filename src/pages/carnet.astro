@@ -3,12 +3,11 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="El Meu Carnet">
-  <!-- Llibreria per convertir l'HTML a Imatge -->
+  <!-- Usem html2canvas però assegurem que les imatges són locals (Blob) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" is:inline></script>
 
   <div class="min-h-[80vh] flex flex-col items-center justify-center px-4 bg-slate-50 py-12">
     
-    <!-- Formulari d'Accés -->
     <div id="login-section" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 max-w-md w-full">
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-brand-blue mb-2">El teu Carnet Digital</h1>
@@ -31,23 +30,20 @@ import Layout from '../layouts/Layout.astro';
       </form>
     </div>
 
-    <!-- Carnet Generat -->
     <div id="result-section" class="hidden flex-col items-center max-w-sm w-full">
       
-      <!-- La Targeta (S'hi farà captura) -->
+      <!-- Eliminem el crossorigin del logo ja que és local -->
       <div id="carnet-card" class="bg-white rounded-2xl shadow-xl overflow-hidden w-full relative border border-slate-200">
-        <!-- Capçalera Blava -->
         <div class="bg-brand-blue p-6 text-white text-center flex flex-col items-center">
-          <img src="/images/logo-afa.png" alt="AFA Logo" class="h-10 mb-4 brightness-0 invert opacity-90" crossorigin="anonymous" />
+          <img src="/images/logo-afa.png" alt="AFA Logo" class="h-10 mb-4 brightness-0 invert opacity-90" />
           <h2 class="text-xl font-bold tracking-widest uppercase">Carnet de Soci</h2>
           <p class="text-blue-200 text-sm mt-1">Curs 2025-2026</p>
         </div>
         
-        <!-- Cos -->
         <div class="p-6 bg-white flex flex-col items-center">
-          <!-- Codi QR Dibuixat aquí -->
+          <!-- El QR el carregarem com a Blob per evitar problemes CORS al Canvas -->
           <div id="qr-container" class="bg-white p-2 rounded-xl border-2 border-slate-100 shadow-sm mb-6">
-            <img id="qr-image" src="" alt="Codi QR" class="w-48 h-48" crossorigin="anonymous" />
+            <img id="qr-image" src="" alt="Codi QR" class="w-48 h-48" />
           </div>
           
           <div class="w-full text-center">
@@ -62,23 +58,20 @@ import Layout from '../layouts/Layout.astro';
           </div>
         </div>
         
-        <!-- Peu -->
         <div class="bg-brand-light/10 text-center py-3 text-xs text-brand-blue font-medium">
           Vàlid per a descomptes i festes AFA
         </div>
       </div>
 
-      <!-- Botons d'acció fora de la targeta -->
       <div class="mt-8 w-full space-y-4 text-center">
         
-        <!-- Botó Descarregar Imatge -->
         <button id="download-btn" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition shadow-lg flex justify-center items-center gap-2">
           <span class="text-xl">⬇️</span>
           <span>Descarregar Imatge</span>
         </button>
 
-        <div class="text-slate-500 text-xs">
-          O mantén premut el carnet per desar-lo.
+        <div class="text-slate-500 text-xs mt-2">
+          O mantén premuda la targeta per desar-la manualment.
         </div>
 
         <button onclick="window.location.reload()" class="text-brand-light font-medium hover:underline text-sm mt-4">
@@ -118,16 +111,19 @@ import Layout from '../layouts/Layout.astro';
           const data = await response.json();
           
           if (response.ok && data.valid) {
-            // Generem URL per al QR
-            const validationUrl = `${window.location.origin}/validar?id=${encodeURIComponent(data.codi)}`;
-            // Usem l'API lliure de qrserver
-            qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(validationUrl)}&margin=10`;
             
-            // Omplim dades
+            // Per evitar l'error de CORS al descarregar la imatge (Safari és molt restrictiu),
+            // descarreguem el QR com a "Blob" (arxiu local) en comptes de posar la URL directa.
+            const validationUrl = `${window.location.origin}/validar?id=${encodeURIComponent(data.codi)}`;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(validationUrl)}&margin=10`;
+            
+            const qrRes = await fetch(qrApiUrl);
+            const qrBlob = await qrRes.blob();
+            qrImage.src = URL.createObjectURL(qrBlob);
+            
             cardId.textContent = data.codi;
             cardNames.innerHTML = data.titulars.map(nom => `<li>${nom}</li>`).join('');
             
-            // Canviem vista
             loginSection.classList.add('hidden');
             resultSection.classList.remove('hidden');
             resultSection.classList.add('flex');
@@ -145,7 +141,6 @@ import Layout from '../layouts/Layout.astro';
         }
       });
 
-      // Lògica del botó de descàrrega
       downloadBtn.addEventListener('click', () => {
         const cardElement = document.getElementById('carnet-card');
         const originalText = downloadBtn.innerHTML;
@@ -153,26 +148,43 @@ import Layout from '../layouts/Layout.astro';
         downloadBtn.innerHTML = 'Generant Imatge...';
         downloadBtn.disabled = true;
 
-        // html2canvas renderitza el DOM a una imatge
+        // Creem el canvas
         window.html2canvas(cardElement, {
-          scale: 2, // Millor resolució
-          useCORS: true, // Permet llegir el QR extern
+          scale: 3, // Màxima resolució per mòbils
+          useCORS: true, 
           backgroundColor: '#ffffff'
         }).then(canvas => {
-          // Creem un enllaç invisible
-          const link = document.createElement('a');
-          link.download = `Carnet-AFA-${cardId.textContent}.png`;
-          link.href = canvas.toDataURL('image/png');
-          
-          // Simulem el clic per descarregar
-          link.click();
-          
-          // Restaurem el botó
-          downloadBtn.innerHTML = '✓ Descarregat!';
-          setTimeout(() => {
-            downloadBtn.innerHTML = originalText;
-            downloadBtn.disabled = false;
-          }, 3000);
+          // Detectem iOS per oferir alternativa si la descàrrega directa falla
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+          if (isIOS) {
+             // A iOS de vegades l'enllaç no funciona bé, així que ensenyem la imatge final a sobre
+             const imgData = canvas.toDataURL('image/png');
+             const img = new Image();
+             img.src = imgData;
+             img.style.width = '100%';
+             img.style.borderRadius = '1rem';
+             img.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1)';
+             
+             // Substituïm el DOM HTML per la imatge plana
+             cardElement.innerHTML = '';
+             cardElement.appendChild(img);
+             
+             downloadBtn.innerHTML = '✓ Mantén premut el carnet per Desar-lo';
+             downloadBtn.classList.replace('bg-green-600', 'bg-blue-600');
+          } else {
+             // Android / Desktop descarreguen directament sense problemes
+             const link = document.createElement('a');
+             link.download = `Carnet-AFA-${cardId.textContent}.png`;
+             link.href = canvas.toDataURL('image/png');
+             link.click();
+             
+             downloadBtn.innerHTML = '✓ Descarregat!';
+             setTimeout(() => {
+                downloadBtn.innerHTML = originalText;
+                downloadBtn.disabled = false;
+             }, 3000);
+          }
         }).catch(err => {
           console.error("Error generant la imatge", err);
           alert("Hi ha hagut un problema en generar la imatge. Si us plau, fes una captura de pantalla.");
