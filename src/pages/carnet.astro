@@ -108,7 +108,7 @@ import Layout from '../layouts/Layout.astro';
           
           if (response.ok && data.valid) {
             // Generem URL per al QR
-            const validationUrl = `https://ampacasanostra.org/validar?id=${encodeURIComponent(data.codi)}`;
+            const validationUrl = `${window.location.origin}/validar?id=${encodeURIComponent(data.codi)}`;
             // Usem l'API lliure de qrserver
             qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(validationUrl)}&margin=10`;
             
