@@ -6,7 +6,7 @@ const csvUrl = settings.socis_csv_url || '';
 ---
 
 <Layout title="Validació de Carnet">
-  <div class="min-h-[70vh] flex flex-col items-center justify-center px-4 bg-slate-50">
+  <div class="min-h-[70vh] flex flex-col items-center justify-center px-4 bg-slate-50 py-12">
     <div id="validation-card" class="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full text-center border-t-8 border-slate-300 transition-colors duration-500">
       
       <div id="loading" class="block">
@@ -20,10 +20,24 @@ const csvUrl = settings.socis_csv_url || '';
           ✓
         </div>
         <h2 class="text-3xl font-extrabold text-green-700 mb-2">SOCI ACTIU</h2>
-        <p class="text-slate-600 text-lg mb-4">Aquest carnet és totalment vàlid per al curs actual.</p>
-        <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 mt-6">
-          <p class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">Codi Identificador</p>
-          <p id="success-id" class="text-xl font-mono font-bold text-slate-700">---</p>
+        <p class="text-slate-600 text-lg mb-6">Aquest carnet familiar és totalment vàlid.</p>
+        
+        <div class="bg-slate-50 p-6 rounded-lg border border-slate-200 mt-6 text-left">
+          <p class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-3 text-center">Titulars Autoritzats</p>
+          
+          <ul id="success-names-list" class="space-y-2 mb-6">
+            <!-- Noms inserits per JS -->
+          </ul>
+          
+          <div class="flex items-start gap-3 bg-yellow-50 text-yellow-800 p-3 rounded-lg border border-yellow-200 text-sm">
+            <span class="text-xl shrink-0 mt-0.5">🪪</span>
+            <p><strong>Avís:</strong> Demaneu el DNI per comprovar que la persona que presenta el codi coincideix amb **algun** dels titulars autoritzats.</p>
+          </div>
+          
+          <div class="mt-6 pt-4 border-t border-slate-200 text-center">
+            <p class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">Codi Família</p>
+            <p id="success-id" class="text-lg font-mono font-bold text-slate-600">---</p>
+          </div>
         </div>
       </div>
 
@@ -32,7 +46,7 @@ const csvUrl = settings.socis_csv_url || '';
           ✕
         </div>
         <h2 class="text-3xl font-extrabold text-red-700 mb-2">NO VÀLID</h2>
-        <p class="text-slate-600 text-lg">No s'ha trobat aquest codi a la llista de socis actius d'aquest curs, o bé hi ha un error.</p>
+        <p class="text-slate-600 text-lg">No s'ha trobat aquest codi a la llista de socis actius, o bé hi ha un error.</p>
         <p class="text-sm text-slate-500 mt-6 italic">Si creus que és un error, si us plau, contacta amb l'AFA.</p>
       </div>
 
@@ -48,6 +62,11 @@ const csvUrl = settings.socis_csv_url || '';
   </div>
 
   <script define:vars={{ csvUrl }}>
+    function cleanCsvValue(val) {
+      if (!val) return '';
+      return val.trim().replace(/^"|"$/g, '').trim();
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const sociId = urlParams.get('id');
@@ -58,8 +77,8 @@ const csvUrl = settings.socis_csv_url || '';
       const missingUrlEl = document.getElementById('missing-url');
       const cardEl = document.getElementById('validation-card');
       const idDisplayEl = document.getElementById('success-id');
+      const namesListEl = document.getElementById('success-names-list');
 
-      // Si no hi ha URL configurada al CMS
       if (!csvUrl || csvUrl.trim() === '') {
         loadingEl.classList.add('hidden');
         missingUrlEl.classList.remove('hidden');
@@ -67,7 +86,6 @@ const csvUrl = settings.socis_csv_url || '';
         return;
       }
 
-      // Si escanegen la pàgina sense cap ID al link
       if (!sociId) {
         loadingEl.classList.add('hidden');
         errorEl.classList.remove('hidden');
@@ -76,14 +94,29 @@ const csvUrl = settings.socis_csv_url || '';
       }
 
       try {
-        // Obtenim el CSV de Google Sheets
         const response = await fetch(csvUrl);
         if (!response.ok) throw new Error('Network response was not ok');
         const csvText = await response.text();
         
-        // Comprovació simple: mirem si l'ID exacte existeix en algun lloc del document
-        // Això assumeix que els IDs són prou únics (ex: AFA-2025-001)
-        const isSoci = csvText.includes(sociId);
+        const rows = csvText.split('\n');
+        let progenitor1 = null;
+        let progenitor2 = null;
+        let isSoci = false;
+
+        for (let i = 0; i < rows.length; i++) {
+          const cols = rows[i].split(',');
+          if (cols.length >= 2) {
+            const colId = cleanCsvValue(cols[0]);
+            if (colId === cleanCsvValue(sociId)) {
+              isSoci = true;
+              progenitor1 = cleanCsvValue(cols[1]); // Columna B
+              if (cols.length >= 3) {
+                progenitor2 = cleanCsvValue(cols[2]); // Columna C
+              }
+              break;
+            }
+          }
+        }
 
         loadingEl.classList.add('hidden');
 
@@ -91,6 +124,18 @@ const csvUrl = settings.socis_csv_url || '';
           successEl.classList.remove('hidden');
           cardEl.classList.replace('border-slate-300', 'border-green-500');
           idDisplayEl.textContent = sociId;
+          
+          namesListEl.innerHTML = '';
+          if (progenitor1) {
+            namesListEl.innerHTML += `<li class="flex items-center gap-2"><span class="text-brand-light">👤</span><span class="font-bold text-slate-800 text-lg">${progenitor1}</span></li>`;
+          }
+          if (progenitor2 && progenitor2.length > 0) {
+            namesListEl.innerHTML += `<li class="flex items-center gap-2"><span class="text-brand-light">👤</span><span class="font-bold text-slate-800 text-lg">${progenitor2}</span></li>`;
+          }
+          if (!progenitor1 && (!progenitor2 || progenitor2.length === 0)) {
+             namesListEl.innerHTML += `<li class="text-slate-500 italic">Sense noms registrats</li>`;
+          }
+
         } else {
           errorEl.classList.remove('hidden');
           cardEl.classList.replace('border-slate-300', 'border-red-500');
