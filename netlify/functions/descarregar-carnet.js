@@ -1,6 +1,8 @@
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 const settings = require('../../src/data/settings.json');
 
-exports.handler = async function (event, context) {
+export const handler = async function (event, context) {
   const { dni, email } = event.queryStringParameters;
 
   if (!dni || !email) {
@@ -41,25 +43,23 @@ exports.handler = async function (event, context) {
 
     for (let i = 0; i < rows.length; i++) {
       const cols = rows[i].split(',');
-      if (cols.length >= 4) { // Minim 4 cols fins a Email P1
-        const codi = cleanString(cols[0]); // Col A
-        const nom1 = cleanString(cols[1]); // Col B
-        const dni1 = cleanCsvValue(cols[2]); // Col C
-        const email1 = cleanCsvValue(cols[3]); // Col D
+      if (cols.length >= 4) { 
+        const codi = cleanString(cols[0]); 
+        const nom1 = cleanString(cols[1]); 
+        const dni1 = cleanCsvValue(cols[2]); 
+        const email1 = cleanCsvValue(cols[3]); 
         
         let nom2 = '';
         let dni2 = '';
         let email2 = '';
         
         if (cols.length >= 7) {
-            nom2 = cleanString(cols[4]); // Col E
-            dni2 = cleanCsvValue(cols[5]); // Col F
-            email2 = cleanCsvValue(cols[6]); // Col G
+            nom2 = cleanString(cols[4]); 
+            dni2 = cleanCsvValue(cols[5]); 
+            email2 = cleanCsvValue(cols[6]); 
         }
 
-        // Comprovem si coincideix amb el Progenitor 1
         const matchP1 = (inputDni === dni1 && inputEmail === email1);
-        // Comprovem si coincideix amb el Progenitor 2
         const matchP2 = (inputDni === dni2 && inputEmail === email2);
 
         if (matchP1 || matchP2) {
@@ -67,7 +67,7 @@ exports.handler = async function (event, context) {
           foundCodi = codi;
           if (nom1) titulars.push(nom1);
           if (nom2) titulars.push(nom2);
-          break; // Trobat!
+          break; 
         }
       }
     }

@@ -1,6 +1,8 @@
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 const settings = require('../../src/data/settings.json');
 
-exports.handler = async function (event, context) {
+export const handler = async function (event, context) {
   const sociId = event.queryStringParameters.id;
 
   if (!sociId) {
@@ -33,23 +35,20 @@ exports.handler = async function (event, context) {
     let isSoci = false;
     let titulars = [];
 
-    // Iterem per buscar el soci a la Columna A
     for (let i = 0; i < rows.length; i++) {
       const cols = rows[i].split(',');
       if (cols.length >= 2) {
-        const colId = cleanCsvValue(cols[0]); // Col A
+        const colId = cleanCsvValue(cols[0]);
         if (colId === cleanCsvValue(sociId)) {
           isSoci = true;
-          
-          const progenitor1 = cleanCsvValue(cols[1]); // Col B
+          const progenitor1 = cleanCsvValue(cols[1]);
           if (progenitor1) titulars.push(progenitor1);
           
-          // El Progenitor 2 ara està a la Columna E (índex 4)
           if (cols.length >= 5) {
-            const progenitor2 = cleanCsvValue(cols[4]); // Col E
+            const progenitor2 = cleanCsvValue(cols[4]);
             if (progenitor2) titulars.push(progenitor2);
           }
-          break; // Un cop trobat, parem de buscar
+          break;
         }
       }
     }
