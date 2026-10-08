@@ -1,0 +1,54 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const forms = import.meta.glob('../../content/formularis/*.md', { eager: true });
+  return Object.values(forms).map((form: any) => {
+    const slug = form.file.split('/').pop().replace('.md', '');
+    return {
+      params: { slug },
+      props: { form },
+    };
+  });
+}
+
+const { form } = Astro.props;
+const { title, description, form_url, actiu } = form.frontmatter;
+---
+
+<Layout title={title}>
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl md:text-4xl font-bold text-brand-blue mb-3">{title}</h1>
+      {description && <p class="text-lg text-slate-600 max-w-2xl mx-auto">{description}</p>}
+    </div>
+    
+    {!actiu ? (
+      <div class="bg-red-50 text-red-600 p-12 rounded-2xl text-center shadow-sm border border-red-100 max-w-2xl mx-auto">
+        <span class="text-5xl mb-4 block">🔒</span>
+        <h2 class="text-2xl font-bold mb-2">Formulari Tancat</h2>
+        <p>El període per emplenar aquest formulari ha finalitzat o l'activitat ja no accepta més inscripcions.</p>
+        <div class="mt-6">
+          <a href="/" class="text-brand-blue font-medium hover:underline">&larr; Tornar a l'inici</a>
+        </div>
+      </div>
+    ) : (
+      <div class="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden relative w-full" style="height: 85vh; min-height: 600px;">
+        <iframe 
+          src={form_url} 
+          width="100%" 
+          height="100%" 
+          frameborder="0" 
+          marginheight="0" 
+          marginwidth="0"
+          class="absolute inset-0 w-full h-full"
+          title={title}
+        >S'està carregant el formulari...</iframe>
+      </div>
+    )}
+    
+    <div class="mt-12 prose prose-slate mx-auto text-slate-600">
+      <form.Content />
+    </div>
+  </div>
+</Layout>

@@ -46,3 +46,15 @@ collections:
         name: "settings"
         fields:
           - {label: "Enllaç CSV de Google Sheets (Llista de Socis Actius)", name: "socis_csv_url", widget: "string", required: false, hint: "Ves al teu Google Sheets d'inscrits > Fitxer > Comparteix > Publica a la web > Tria CSV i enganxa l'enllaç aquí."}
+
+  - name: "formularis"
+    label: "Formularis i Pagaments"
+    folder: "src/content/formularis"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Títol de l'Activitat", name: "title", widget: "string"}
+      - {label: "Actiu (Obert al públic)", name: "actiu", widget: "boolean", default: true, hint: "Desmarca-ho quan vulguis tancar les inscripcions sense haver d'esborrar el formulari."}
+      - {label: "Breu Descripció", name: "description", widget: "text", required: false}
+      - {label: "Enllaç del formulari extern (Google Forms, Tally, etc.)", name: "form_url", widget: "string", hint: "Exemple: https://docs.google.com/forms/d/e/1FAIpQLSc.../viewform"}
+      - {label: "Text addicional (Opcional)", name: "body", widget: "markdown", required: false, hint: "Informació extra o bases que vulguis mostrar sota del formulari."}
