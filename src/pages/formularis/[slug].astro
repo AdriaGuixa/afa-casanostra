@@ -13,42 +13,118 @@ export async function getStaticPaths() {
 }
 
 const { form } = Astro.props;
-const { title, description, form_url, actiu } = form.frontmatter;
+const { title, description, actiu, preguntes, text_exit } = form.frontmatter;
+
+// Preparem les preguntes (si no n'hi ha, array buit)
+const questionsList = preguntes || [];
 ---
 
 <Layout title={title}>
-  <div class="max-w-4xl mx-auto px-4 py-12">
-    <div class="text-center mb-8">
-      <h1 class="text-3xl md:text-4xl font-bold text-brand-blue mb-3">{title}</h1>
-      {description && <p class="text-lg text-slate-600 max-w-2xl mx-auto">{description}</p>}
+  <div class="max-w-3xl mx-auto px-4 py-12">
+    <div class="mb-10 text-center">
+      <h1 class="text-3xl md:text-4xl font-extrabold text-brand-blue mb-4">{title}</h1>
+      {description && <p class="text-lg text-slate-600 leading-relaxed">{description}</p>}
     </div>
     
     {!actiu ? (
       <div class="bg-red-50 text-red-600 p-12 rounded-2xl text-center shadow-sm border border-red-100 max-w-2xl mx-auto">
         <span class="text-5xl mb-4 block">🔒</span>
-        <h2 class="text-2xl font-bold mb-2">Formulari Tancat</h2>
-        <p>El període per emplenar aquest formulari ha finalitzat o l'activitat ja no accepta més inscripcions.</p>
+        <h2 class="text-2xl font-bold mb-2">Inscripcions Tancades</h2>
+        <p>El període per emplenar aquest formulari ha finalitzat.</p>
         <div class="mt-6">
           <a href="/" class="text-brand-blue font-medium hover:underline">&larr; Tornar a l'inici</a>
         </div>
       </div>
     ) : (
-      <div class="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden relative w-full" style="height: 85vh; min-height: 600px;">
-        <iframe 
-          src={form_url} 
-          width="100%" 
-          height="100%" 
-          frameborder="0" 
-          marginheight="0" 
-          marginwidth="0"
-          class="absolute inset-0 w-full h-full"
-          title={title}
-        >S'està carregant el formulari...</iframe>
+      <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 md:p-10">
+        <!-- El form apunta a la funció Netlify (Simulador de Pagament) -->
+        <form action="/.netlify/functions/processar-pagament" method="POST" id="native-form" class="space-y-6">
+          <input type="hidden" name="form-id" value={title} />
+          
+          {questionsList.map((pregunta: any, index: number) => {
+            const fieldId = `field_${index}`;
+            const isEmail = pregunta.tipus === 'Correu electrònic';
+            const isText = pregunta.tipus === 'Text';
+            const isNumber = pregunta.tipus === 'Número (sense preu)' || pregunta.tipus === 'Article amb Preu (Calcula el total)';
+            const isPriced = pregunta.tipus === 'Article amb Preu (Calcula el total)';
+            
+            return (
+              <div class="flex flex-col gap-2">
+                <label for={fieldId} class="font-semibold text-slate-800">
+                  {pregunta.titol_pregunta} {pregunta.obligatori && <span class="text-red-500">*</span>}
+                  {isPriced && <span class="text-sm font-normal text-slate-500 ml-2">({pregunta.preu}€/unitat)</span>}
+                </label>
+                
+                {isText && (
+                  <input type="text" id={fieldId} name={`q_${index}`} required={pregunta.obligatori} class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-light outline-none transition" />
+                )}
+                
+                {isEmail && (
+                  <input type="email" id={fieldId} name={`q_${index}`} required={pregunta.obligatori} class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-light outline-none transition" />
+                )}
+                
+                {isNumber && (
+                  <input 
+                    type="number" 
+                    id={fieldId} 
+                    name={`q_${index}`} 
+                    min="0"
+                    required={pregunta.obligatori} 
+                    data-price={isPriced ? pregunta.preu : 0}
+                    class="calc-input w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-light outline-none transition" 
+                  />
+                )}
+              </div>
+            )
+          })}
+          
+          <!-- Calculadora de preu en temps real -->
+          <div class="mt-8 pt-8 border-t border-slate-200">
+            <div class="flex justify-between items-center mb-6 bg-slate-50 p-6 rounded-xl border border-slate-100">
+              <span class="text-lg font-bold text-slate-700">Total a pagar:</span>
+              <span class="text-3xl font-extrabold text-brand-blue"><span id="price-display">0</span> €</span>
+              <input type="hidden" name="total-price" id="hidden-total-price" value="0" />
+            </div>
+            
+            <button type="submit" class="w-full bg-green-600 text-white font-bold py-4 px-6 rounded-xl hover:bg-green-700 transition shadow-lg shadow-green-200 flex justify-center items-center gap-3 text-lg">
+              <span>💳 Pagar i Finalitzar</span>
+            </button>
+            <p class="text-xs text-center text-slate-400 mt-4">
+              Connexió 100% segura. Seràs redirigit al pagament virtual del Banc Sabadell.
+            </p>
+          </div>
+        </form>
       </div>
     )}
-    
-    <div class="mt-12 prose prose-slate mx-auto text-slate-600">
-      <form.Content />
-    </div>
   </div>
+
+  <script>
+    // Lògica per calcular el preu en temps real
+    document.addEventListener("DOMContentLoaded", () => {
+      const inputs = document.querySelectorAll('.calc-input');
+      const display = document.getElementById('price-display');
+      const hiddenInput = document.getElementById('hidden-total-price');
+      
+      if(!display || !inputs.length) return;
+
+      function updatePrice() {
+        let total = 0;
+        inputs.forEach(input => {
+          const val = parseInt((input as HTMLInputElement).value) || 0;
+          const price = parseFloat(input.getAttribute('data-price') || '0');
+          total += (val * price);
+        });
+        
+        display.textContent = total.toFixed(2).replace('.00', '');
+        if(hiddenInput) {
+          (hiddenInput as HTMLInputElement).value = total.toString();
+        }
+      }
+
+      inputs.forEach(input => {
+        input.addEventListener('input', updatePrice);
+        input.addEventListener('change', updatePrice);
+      });
+    });
+  </script>
 </Layout>
