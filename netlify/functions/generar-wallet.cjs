@@ -20,7 +20,6 @@ exports.handler = async (event, context) => {
     // Estructura simplificada que demana l'API de WalletWallet
     const passPayload = {
       format: "generic",
-      serialNumber: data.codi,
       organizationName: "AFA Escola Casa Nostra",
       description: "Carnet de Soci AFA",
       logoText: "AFA Casa Nostra",
