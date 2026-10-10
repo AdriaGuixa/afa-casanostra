@@ -20,10 +20,11 @@ exports.handler = async (event, context) => {
     const passPayload = {
       passData: {
         format: "generic",
+        serialNumber: data.codi,
         organizationName: "AFA Escola Casa Nostra",
         description: "Carnet de Soci AFA",
         logoText: "AFA Casa Nostra",
-        backgroundColor: "rgb(30, 58, 138)", // bg-blue-900 (aprox)
+        backgroundColor: "rgb(30, 58, 138)", // bg-blue-900
         foregroundColor: "rgb(255, 255, 255)",
         labelColor: "rgb(219, 234, 254)", // blue-100
         primaryFields: [
@@ -70,17 +71,17 @@ exports.handler = async (event, context) => {
         body: JSON.stringify({ url: result.shareUrl })
       };
     } else {
-      console.error("WalletWallet API Error:", result);
+      console.error("WalletWallet API Error Payload:", result);
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Error de l'API de WalletWallet: " + (result.message || "Desconegut") })
+        body: JSON.stringify({ error: "Error API: " + JSON.stringify(result) })
       };
     }
   } catch (error) {
     console.error("Internal Server Error:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Error intern del servidor al comunicar amb WalletWallet." })
+      body: JSON.stringify({ error: "Error intern: " + error.message })
     };
   }
 };
