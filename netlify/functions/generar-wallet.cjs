@@ -17,41 +17,18 @@ exports.handler = async (event, context) => {
     const validationUrl = "https://afa-casanostra.netlify.app/validar?id=" + encodeURIComponent(data.codi);
     const nomsTitulars = data.titulars.join(' i ');
 
+    // Estructura simplificada que demana l'API de WalletWallet
     const passPayload = {
-      passData: {
-        format: "generic",
-        serialNumber: data.codi,
-        organizationName: "AFA Escola Casa Nostra",
-        description: "Carnet de Soci AFA",
-        logoText: "AFA Casa Nostra",
-        backgroundColor: "rgb(30, 58, 138)", // bg-blue-900
-        foregroundColor: "rgb(255, 255, 255)",
-        labelColor: "rgb(219, 234, 254)", // blue-100
-        primaryFields: [
-          {
-            key: "titular",
-            label: "FAMÍLIA",
-            value: nomsTitulars
-          }
-        ],
-        secondaryFields: [
-          {
-            key: "codi",
-            label: "CODI SOCI",
-            value: data.codi
-          },
-          {
-            key: "curs",
-            label: "CURS",
-            value: "2025-2026"
-          }
-        ],
-        barcode: {
-          format: "PKBarcodeFormatQR",
-          message: validationUrl,
-          messageEncoding: "iso-8859-1"
-        }
-      }
+      format: "generic",
+      serialNumber: data.codi,
+      organizationName: "AFA Escola Casa Nostra",
+      description: "Carnet de Soci AFA",
+      logoText: "AFA Casa Nostra",
+      title: nomsTitulars,
+      backgroundColor: "#1e3a8a", // Blau fosc corporatiu
+      foregroundColor: "#ffffff",
+      barcodeFormat: "QR",
+      barcodeValue: validationUrl
     };
 
     const response = await fetch('https://api.walletwallet.dev/api/passes?format=pkpass', {
