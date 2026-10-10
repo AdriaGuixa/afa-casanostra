@@ -16,6 +16,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.3.5",
+    "nodemailer": "^10.0.16",
     "tailwindcss": "^4.3.3"
   },
   "allowScripts": {
