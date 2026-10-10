@@ -30,7 +30,7 @@ exports.handler = async (event, context) => {
       barcodeValue: validationUrl
     };
 
-    const response = await fetch('https://api.walletwallet.dev/api/passes?format=pkpass', {
+    const response = await fetch('https://api.walletwallet.dev/api/passes', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${WALLET_API_KEY}`,
