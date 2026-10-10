@@ -1,7 +1,6 @@
 const querystring = require('querystring');
 const nodemailer = require('nodemailer');
 
-// Funció per generar l'HTML del correu basat en plantilla.html
 function generarCorreuHtml(titol, contingut) {
   return `
 <!DOCTYPE html>
@@ -12,14 +11,10 @@ function generarCorreuHtml(titol, contingut) {
 <title>AFA Casa Nostra - Comunicat</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased;">
-  
   <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; padding: 40px 10px;">
     <tr>
       <td align="center">
-        <!-- Contenidor Principal -->
         <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); max-width: 600px; width: 100%;">
-          
-          <!-- Capçalera -->
           <tr>
             <td align="center" style="background-color: #ffffff; padding: 30px; border-bottom: 4px solid #C4122E;">
               <a href="https://afa-casanostra.netlify.app" target="_blank">
@@ -27,19 +22,13 @@ function generarCorreuHtml(titol, contingut) {
               </a>
             </td>
           </tr>
-
-          <!-- Cos del Correu -->
           <tr>
             <td style="padding: 40px; line-height: 1.6; color: #334155; font-size: 16px;">
               <h1 style="color: #4B5154; font-size: 24px; margin-top: 0; margin-bottom: 20px; font-weight: bold;">${titol}</h1>
-              
               ${contingut}
-
               <p style="margin: 30px 0 0 0; font-weight: bold; color: #4B5154;">La Junta de l'AFA Casa Nostra</p>
             </td>
           </tr>
-
-          <!-- Peu de pàgina (Footer) -->
           <tr>
             <td style="background-color: #4B5154; color: #f8fafc; text-align: center; padding: 30px 40px; font-size: 14px;">
               <p style="margin: 0 0 10px 0; font-weight: bold; color: #ffffff; font-size: 16px;">AFA Escola Casa Nostra</p>
@@ -47,19 +36,14 @@ function generarCorreuHtml(titol, contingut) {
               <p style="margin: 0 0 20px 0;">
                 <a href="mailto:ampa.escolacasanostra@gmail.com" style="color: #FBB03B; text-decoration: none; font-weight: bold;">ampa.escolacasanostra@gmail.com</a>
               </p>
-              
               <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 20px;">
-                <tr>
-                  <td style="border-top: 1px solid #71777A;"></td>
-                </tr>
+                <tr><td style="border-top: 1px solid #71777A;"></td></tr>
               </table>
-
               <p style="margin: 0; font-size: 12px; color: #cbd5e1; line-height: 1.5;">
                 Heu rebut aquest correu perquè heu realitzat una inscripció o formeu part de l'AFA.
               </p>
             </td>
           </tr>
-
         </table>
       </td>
     </tr>
@@ -89,17 +73,41 @@ exports.handler = async (event, context) => {
   let resumCompraHtmlWeb = '';
   let resumCompraHtmlEmail = '';
   
-  // Netejem les dades innecessàries per l'email i muntem les llistes
+  const dadesNetes = {}; // Obecte net per enviar a Google Sheets
+  
   for (const [key, value] of Object.entries(params)) {
     if (key.startsWith('q_') && value !== '') {
-      resumCompraHtmlWeb += `<li class="mb-2"><span class="font-semibold">${value}</span></li>`;
-      resumCompraHtmlEmail += `<li><strong>${value}</strong></li>`;
+      const index = key.replace('q_', '');
+      const label = params[`label_q_${index}`] || \`Pregunta \${index}\`;
+      
+      dadesNetes[label] = value;
+      
+      resumCompraHtmlWeb += \`<li class="mb-2"><span class="text-slate-500">\${label}:</span> <span class="font-semibold text-slate-800">\${value}</span></li>\`;
+      resumCompraHtmlEmail += \`<li><span style="color:#64748b;">\${label}:</span> <strong>\${value}</strong></li>\`;
       
       if (typeof value === 'string' && value.includes('@') && value.includes('.')) {
         userEmail = value;
       } else if (typeof value === 'string' && value.length > 2 && userName === 'Família' && !value.match(/^[0-9]+$/)) {
         userName = value;
       }
+    }
+  }
+
+  // ===== GOOGLE SHEETS WEBHOOK =====
+  if (process.env.GOOGLE_SHEETS_WEBHOOK) {
+    try {
+      await fetch(process.env.GOOGLE_SHEETS_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formName: formTitol,
+          totalPagat: totalPagat,
+          dades: dadesNetes
+        })
+      });
+      console.log('Dades enviades a Google Sheets correctament.');
+    } catch (error) {
+      console.error('Error enviant dades a Google Sheets:', error);
     }
   }
 
@@ -113,7 +121,6 @@ exports.handler = async (event, context) => {
       }
     });
 
-    // Contingut HTML per a l'AFA
     const contingutAfa = `
       <p style="margin: 0 0 20px 0;">S'ha completat una nova inscripció / pagament amb èxit per l'activitat <strong>${formTitol}</strong>.</p>
       <div style="background-color: #f1f5f9; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
@@ -126,7 +133,6 @@ exports.handler = async (event, context) => {
     `;
     const htmlAfa = generarCorreuHtml(`Nova inscripció: ${formTitol}`, contingutAfa);
 
-    // Contingut HTML per a l'Usuari
     const contingutUser = `
       <p style="margin: 0 0 20px 0;">Hola ${userName},</p>
       <p style="margin: 0 0 20px 0;">Hem rebut correctament la teva inscripció i el pagament per <strong>${formTitol}</strong>.</p>
@@ -141,7 +147,6 @@ exports.handler = async (event, context) => {
     const htmlUser = generarCorreuHtml(`Confirmació d'inscripció: ${formTitol}`, contingutUser);
 
     if (process.env.EMAIL_PASS) {
-      // 1. Email a l'AFA
       await transporter.sendMail({
         from: '"AFA Casa Nostra Web" <ampa.escolacasanostra@gmail.com>',
         to: 'adriaguixa@gmail.com',
@@ -149,7 +154,6 @@ exports.handler = async (event, context) => {
         html: htmlAfa
       });
       
-      // 2. Email a l'Usuari
       if (userEmail) {
         await transporter.sendMail({
           from: '"AFA Casa Nostra" <ampa.escolacasanostra@gmail.com>',
@@ -158,11 +162,6 @@ exports.handler = async (event, context) => {
           html: htmlUser
         });
       }
-    } else {
-      console.log('--- SIMULACIÓ EMAIL AFA HTML ---');
-      console.log(contingutAfa);
-      console.log('--- SIMULACIÓ EMAIL USUARI HTML ---');
-      console.log(contingutUser);
     }
   } catch (error) {
     console.error('Error enviant correus:', error);

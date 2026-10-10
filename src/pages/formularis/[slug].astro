@@ -15,7 +15,6 @@ export async function getStaticPaths() {
 const { form } = Astro.props;
 const { title, description, actiu, preguntes, text_exit } = form.frontmatter;
 
-// Preparem les preguntes (si no n'hi ha, array buit)
 const questionsList = preguntes || [];
 ---
 
@@ -37,7 +36,6 @@ const questionsList = preguntes || [];
       </div>
     ) : (
       <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 md:p-10">
-        <!-- El form apunta a la funció Netlify (Simulador de Pagament) -->
         <form action="/.netlify/functions/processar-pagament" method="POST" id="native-form" class="space-y-6">
           <input type="hidden" name="form-id" value={title} />
           
@@ -50,6 +48,8 @@ const questionsList = preguntes || [];
             
             return (
               <div class="flex flex-col gap-2">
+                <input type="hidden" name={`label_q_${index}`} value={pregunta.titol_pregunta} />
+                
                 <label for={fieldId} class="font-semibold text-slate-800">
                   {pregunta.titol_pregunta} {pregunta.obligatori && <span class="text-red-500">*</span>}
                   {isPriced && <span class="text-sm font-normal text-slate-500 ml-2">({pregunta.preu}€/unitat)</span>}
@@ -78,7 +78,6 @@ const questionsList = preguntes || [];
             )
           })}
           
-          <!-- Caselles Legals i Màrqueting -->
           <div class="mt-8 pt-6 pb-2 space-y-4">
             <label class="flex items-start gap-3 cursor-pointer group">
               <div class="flex-shrink-0 mt-1">
@@ -99,7 +98,6 @@ const questionsList = preguntes || [];
             </label>
           </div>
           
-          <!-- Calculadora de preu en temps real -->
           <div class="mt-8 pt-8 border-t border-slate-200">
             <div class="flex justify-between items-center mb-6 bg-slate-50 p-6 rounded-xl border border-slate-100">
               <span class="text-lg font-bold text-slate-700">Total a pagar:</span>
@@ -120,7 +118,6 @@ const questionsList = preguntes || [];
   </div>
 
   <script>
-    // Lògica per calcular el preu en temps real
     document.addEventListener("DOMContentLoaded", () => {
       const inputs = document.querySelectorAll('.calc-input');
       const display = document.getElementById('price-display');
