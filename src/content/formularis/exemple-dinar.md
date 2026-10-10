@@ -16,6 +16,7 @@ preguntes:
     tipus: Article amb Preu (Calcula el total)
     obligatori: false
     preu: 15
+    preu_soci: 12
   - titol_pregunta: "Menús Infantils (Macarrons)"
     tipus: Article amb Preu (Calcula el total)
     obligatori: false

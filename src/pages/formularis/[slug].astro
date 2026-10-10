@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import settings from '../../data/settings.json';
 
 export async function getStaticPaths() {
   const forms = import.meta.glob('../../content/formularis/*.md', { eager: true });
@@ -14,8 +15,11 @@ export async function getStaticPaths() {
 
 const { form } = Astro.props;
 const { title, description, actiu, preguntes, text_exit } = form.frontmatter;
-
 const questionsList = preguntes || [];
+
+// Comprovem si hi ha alguna pregunta amb preu diferent per a socis
+const isSociDiscountAvailable = questionsList.some((p: any) => p.tipus.includes('Preu') && p.preu_soci && p.preu_soci < p.preu);
+const csvUrl = settings.socis_csv_url;
 ---
 
 <Layout title={title}>
@@ -35,114 +39,227 @@ const questionsList = preguntes || [];
         </div>
       </div>
     ) : (
-      <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 md:p-10">
-        <form action="/.netlify/functions/processar-pagament" method="POST" id="native-form" class="space-y-6">
-          <input type="hidden" name="form-id" value={title} />
-          
-          {questionsList.map((pregunta: any, index: number) => {
-            const fieldId = `field_${index}`;
-            const isEmail = pregunta.tipus === 'Correu electrònic';
-            const isText = pregunta.tipus === 'Text';
-            const isNumber = pregunta.tipus === 'Número (sense preu)' || pregunta.tipus === 'Article amb Preu (Calcula el total)';
-            const isPriced = pregunta.tipus === 'Article amb Preu (Calcula el total)';
+      <div class="space-y-6">
+      
+        {isSociDiscountAvailable && (
+          <div id="soci-validation-box" class="bg-brand-light/10 border-2 border-brand-light rounded-2xl p-6 shadow-sm">
+            <h3 class="text-lg font-bold text-brand-blue mb-2">Ets soci de l'AFA? 🎉</h3>
+            <p class="text-slate-600 mb-4 text-sm">Aquesta activitat té descomptes especials. Introdueix el DNI (o Telèfon) amb el qual et vas inscriure a l'AFA per aplicar-los.</p>
             
-            return (
-              <div class="flex flex-col gap-2">
-                <input type="hidden" name={`label_q_${index}`} value={pregunta.titol_pregunta} />
-                
-                <label for={fieldId} class="font-semibold text-slate-800">
-                  {pregunta.titol_pregunta} {pregunta.obligatori && <span class="text-red-500">*</span>}
-                  {isPriced && <span class="text-sm font-normal text-slate-500 ml-2">({pregunta.preu}€/unitat)</span>}
-                </label>
-                
-                {isText && (
-                  <input type="text" id={fieldId} name={`q_${index}`} required={pregunta.obligatori} class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-light outline-none transition" />
-                )}
-                
-                {isEmail && (
-                  <input type="email" id={fieldId} name={`q_${index}`} required={pregunta.obligatori} class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-light outline-none transition" />
-                )}
-                
-                {isNumber && (
-                  <input 
-                    type="number" 
-                    id={fieldId} 
-                    name={`q_${index}`} 
-                    min="0"
-                    required={pregunta.obligatori} 
-                    data-price={isPriced ? pregunta.preu : 0}
-                    class="calc-input w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-light outline-none transition" 
-                  />
-                )}
-              </div>
-            )
-          })}
-          
-          <div class="mt-8 pt-6 pb-2 space-y-4">
-            <label class="flex items-start gap-3 cursor-pointer group">
-              <div class="flex-shrink-0 mt-1">
-                <input type="checkbox" name="accepta_privacitat" required class="w-5 h-5 rounded border-slate-300 text-brand-blue focus:ring-brand-light transition" />
-              </div>
-              <span class="text-sm text-slate-600">
-                He llegit i accepto la <a href="/politica-privacitat" target="_blank" class="text-brand-blue font-medium hover:underline">Política de Privacitat</a> i les <a href="/condicions-us" target="_blank" class="text-brand-blue font-medium hover:underline">Condicions d'Ús</a> de l'AFA. <span class="text-red-500">*</span>
-              </span>
-            </label>
-            
-            <label class="flex items-start gap-3 cursor-pointer group">
-              <div class="flex-shrink-0 mt-1">
-                <input type="checkbox" name="accepta_comunicacions" class="w-5 h-5 rounded border-slate-300 text-brand-blue focus:ring-brand-light transition" />
-              </div>
-              <span class="text-sm text-slate-600">
-                Accepto rebre comunicacions informatives i butlletins de l'AFA al meu correu electrònic. (Opcional)
-              </span>
-            </label>
-          </div>
-          
-          <div class="mt-8 pt-8 border-t border-slate-200">
-            <div class="flex justify-between items-center mb-6 bg-slate-50 p-6 rounded-xl border border-slate-100">
-              <span class="text-lg font-bold text-slate-700">Total a pagar:</span>
-              <span class="text-3xl font-extrabold text-brand-blue"><span id="price-display">0</span> €</span>
-              <input type="hidden" name="total-price" id="hidden-total-price" value="0" />
+            <div class="flex flex-col sm:flex-row gap-3">
+              <input type="text" id="dni-input" placeholder="DNI o Telèfon" class="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-light outline-none" />
+              <button type="button" id="btn-validar-soci" class="bg-brand-blue text-white font-bold px-6 py-3 rounded-lg hover:bg-brand-dark transition whitespace-nowrap">
+                Validar Descompte
+              </button>
             </div>
             
-            <button type="submit" class="w-full bg-green-600 text-white font-bold py-4 px-6 rounded-xl hover:bg-green-700 transition shadow-lg shadow-green-200 cursor-pointer flex justify-center items-center gap-3 text-lg">
-              <span>💳 Pagar i Finalitzar</span>
-            </button>
-            <p class="text-xs text-center text-slate-400 mt-4">
-              Connexió 100% segura. Seràs redirigit al pagament virtual del Banc Sabadell.
-            </p>
+            <div id="soci-validation-msg" class="mt-3 text-sm hidden font-medium"></div>
           </div>
-        </form>
+        )}
+
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 md:p-10">
+          <form action="/.netlify/functions/processar-pagament" method="POST" id="native-form" class="space-y-6">
+            <input type="hidden" name="form-id" value={title} />
+            <input type="hidden" name="is_soci" id="is_soci_input" value="false" />
+            <input type="hidden" name="validated_dni" id="validated_dni_input" value="" />
+            
+            {questionsList.map((pregunta: any, index: number) => {
+              const fieldId = `field_${index}`;
+              const isEmail = pregunta.tipus === 'Correu electrònic';
+              const isText = pregunta.tipus === 'Text';
+              const isNumber = pregunta.tipus === 'Número (sense preu)' || pregunta.tipus === 'Article amb Preu (Calcula el total)';
+              const isPriced = pregunta.tipus.includes('Preu');
+              
+              const preuNormal = isPriced ? pregunta.preu : 0;
+              const preuSoci = (isPriced && pregunta.preu_soci) ? pregunta.preu_soci : preuNormal;
+              
+              return (
+                <div class="flex flex-col gap-2">
+                  <input type="hidden" name={`label_q_${index}`} value={pregunta.titol_pregunta} />
+                  
+                  <label for={fieldId} class="font-semibold text-slate-800 flex flex-wrap items-center gap-2">
+                    <span>{pregunta.titol_pregunta} {pregunta.obligatori && <span class="text-red-500">*</span>}</span>
+                    
+                    {isPriced && (
+                      <span class="price-badge text-xs font-bold px-2 py-1 bg-slate-100 text-slate-600 rounded-md border border-slate-200">
+                        {preuNormal}€ / unitat
+                      </span>
+                    )}
+                  </label>
+                  
+                  {isText && (
+                    <input type="text" id={fieldId} name={`q_${index}`} required={pregunta.obligatori} class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-light outline-none transition" />
+                  )}
+                  
+                  {isEmail && (
+                    <input type="email" id={fieldId} name={`q_${index}`} required={pregunta.obligatori} class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-light outline-none transition" />
+                  )}
+                  
+                  {isNumber && (
+                    <input 
+                      type="number" 
+                      id={fieldId} 
+                      name={`q_${index}`} 
+                      min="0"
+                      required={pregunta.obligatori} 
+                      data-price={preuNormal}
+                      data-price-soci={preuSoci}
+                      class="calc-input w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-light outline-none transition" 
+                    />
+                  )}
+                </div>
+              )
+            })}
+            
+            <div class="mt-8 pt-6 pb-2 space-y-4">
+              <label class="flex items-start gap-3 cursor-pointer group">
+                <div class="flex-shrink-0 mt-1">
+                  <input type="checkbox" name="accepta_privacitat" required class="w-5 h-5 rounded border-slate-300 text-brand-blue focus:ring-brand-light transition" />
+                </div>
+                <span class="text-sm text-slate-600">
+                  He llegit i accepto la <a href="/politica-privacitat" target="_blank" class="text-brand-blue font-medium hover:underline">Política de Privacitat</a> i les <a href="/condicions-us" target="_blank" class="text-brand-blue font-medium hover:underline">Condicions d'Ús</a> de l'AFA. <span class="text-red-500">*</span>
+                </span>
+              </label>
+              
+              <label class="flex items-start gap-3 cursor-pointer group">
+                <div class="flex-shrink-0 mt-1">
+                  <input type="checkbox" name="accepta_comunicacions" class="w-5 h-5 rounded border-slate-300 text-brand-blue focus:ring-brand-light transition" />
+                </div>
+                <span class="text-sm text-slate-600">
+                  Accepto rebre comunicacions informatives i butlletins de l'AFA al meu correu electrònic. (Opcional)
+                </span>
+              </label>
+            </div>
+            
+            <div class="mt-8 pt-8 border-t border-slate-200">
+              <div class="flex justify-between items-center mb-6 bg-slate-50 p-6 rounded-xl border border-slate-100 relative overflow-hidden">
+                <div id="soci-active-bg" class="absolute inset-0 bg-green-50 opacity-0 transition-opacity duration-500"></div>
+                <span class="text-lg font-bold text-slate-700 relative z-10">Total a pagar:</span>
+                <span class="text-3xl font-extrabold text-brand-blue relative z-10"><span id="price-display">0</span> €</span>
+                <input type="hidden" name="total-price" id="hidden-total-price" value="0" />
+              </div>
+              
+              <button type="submit" class="w-full bg-green-600 text-white font-bold py-4 px-6 rounded-xl hover:bg-green-700 transition shadow-lg shadow-green-200 cursor-pointer flex justify-center items-center gap-3 text-lg">
+                <span>💳 Pagar i Finalitzar</span>
+              </button>
+              <p class="text-xs text-center text-slate-400 mt-4">
+                Connexió 100% segura. Seràs redirigit al pagament virtual del Banc Sabadell.
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     )}
   </div>
 
-  <script>
+  <script define:vars={{ csvUrl }}>
     document.addEventListener("DOMContentLoaded", () => {
+      let isSoci = false;
       const inputs = document.querySelectorAll('.calc-input');
       const display = document.getElementById('price-display');
       const hiddenInput = document.getElementById('hidden-total-price');
+      const badges = document.querySelectorAll('.price-badge');
       
-      if(!display || !inputs.length) return;
+      const btnValidar = document.getElementById('btn-validar-soci');
+      const dniInput = document.getElementById('dni-input');
+      const msgBox = document.getElementById('soci-validation-msg');
+      const hiddenIsSoci = document.getElementById('is_soci_input');
+      const hiddenValidatedDni = document.getElementById('validated_dni_input');
+      const sociActiveBg = document.getElementById('soci-active-bg');
 
       function updatePrice() {
         let total = 0;
         inputs.forEach(input => {
-          const val = parseInt((input as HTMLInputElement).value) || 0;
-          const price = parseFloat(input.getAttribute('data-price') || '0');
-          total += (val * price);
+          const val = parseInt(input.value) || 0;
+          const normalPrice = parseFloat(input.getAttribute('data-price') || '0');
+          const sociPrice = parseFloat(input.getAttribute('data-price-soci') || '0');
+          
+          const currentPrice = isSoci ? sociPrice : normalPrice;
+          total += (val * currentPrice);
         });
         
-        display.textContent = total.toFixed(2).replace('.00', '');
-        if(hiddenInput) {
-          (hiddenInput as HTMLInputElement).value = total.toString();
+        if (display) display.textContent = total.toFixed(2).replace('.00', '');
+        if (hiddenInput) hiddenInput.value = total.toString();
+      }
+
+      function updateBadges() {
+        inputs.forEach((input, index) => {
+          const normalPrice = parseFloat(input.getAttribute('data-price') || '0');
+          const sociPrice = parseFloat(input.getAttribute('data-price-soci') || '0');
+          const badge = badges[index];
+          
+          if (badge) {
+            if (isSoci) {
+              if (sociPrice < normalPrice) {
+                badge.innerHTML = `<span class="line-through text-slate-400 mr-1">${normalPrice}€</span> <span class="text-green-600">${sociPrice}€ / unitat (Soci)</span>`;
+                badge.className = "price-badge text-xs font-bold px-2 py-1 bg-green-100 rounded-md border border-green-200";
+              } else {
+                badge.textContent = `${normalPrice}€ / unitat`;
+              }
+            } else {
+              badge.textContent = `${normalPrice}€ / unitat`;
+              badge.className = "price-badge text-xs font-bold px-2 py-1 bg-slate-100 text-slate-600 rounded-md border border-slate-200";
+            }
+          }
+        });
+        
+        if (isSoci && sociActiveBg) {
+          sociActiveBg.classList.remove('opacity-0');
+        } else if (sociActiveBg) {
+          sociActiveBg.classList.add('opacity-0');
         }
       }
 
-      inputs.forEach(input => {
-        input.addEventListener('input', updatePrice);
-        input.addEventListener('change', updatePrice);
-      });
+      if (inputs.length) {
+        inputs.forEach(input => {
+          input.addEventListener('input', updatePrice);
+          input.addEventListener('change', updatePrice);
+        });
+      }
+
+      if (btnValidar && dniInput && csvUrl) {
+        btnValidar.addEventListener('click', async () => {
+          const checkDni = dniInput.value.trim().toUpperCase();
+          if (!checkDni) {
+            showMsg("Si us plau, introdueix el DNI.", "text-red-500");
+            return;
+          }
+
+          btnValidar.textContent = "Comprovant...";
+          btnValidar.disabled = true;
+
+          try {
+            const response = await fetch(csvUrl);
+            const csvText = await response.text();
+            
+            if (csvText.toUpperCase().includes(checkDni)) {
+              isSoci = true;
+              hiddenIsSoci.value = "true";
+              hiddenValidatedDni.value = checkDni;
+              
+              showMsg("✅ Soci verificat correctament! Descomptes aplicats.", "text-green-600");
+              dniInput.disabled = true;
+              btnValidar.style.display = 'none';
+              
+              updateBadges();
+              updatePrice();
+            } else {
+              showMsg("❌ DNI no trobat a la llista de socis actius.", "text-red-500");
+            }
+          } catch (error) {
+            showMsg("❌ Error de connexió. Torna-ho a provar.", "text-red-500");
+          }
+          
+          btnValidar.textContent = "Validar Descompte";
+          btnValidar.disabled = false;
+        });
+      }
+
+      function showMsg(text, classes) {
+        msgBox.textContent = text;
+        msgBox.className = `mt-3 text-sm font-medium ${classes}`;
+        msgBox.classList.remove('hidden');
+      }
     });
   </script>
 </Layout>

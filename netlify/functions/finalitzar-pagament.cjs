@@ -70,10 +70,11 @@ exports.handler = async (event, context) => {
   let userEmail = '';
   let userName = 'Família';
   
-  let resumCompraHtmlWeb = '';
-  let resumCompraHtmlEmail = '';
+  let resumCompraHtmlWeb = `<li class="mb-2"><span class="text-slate-500">Descompte de Soci:</span> <span class="font-semibold text-slate-800">${params["is_soci"] === "true" ? "Aplicat ✅" : "No aplicat"}</span></li>`;
+  let resumCompraHtmlEmail = `<li><span style="color:#64748b;">Descompte de Soci:</span> <strong>${params["is_soci"] === "true" ? "Aplicat ✅" : "No aplicat"}</strong></li>`;
   
-  const dadesNetes = {}; // Obecte net per enviar a Google Sheets
+  const dadesNetes = {};
+  dadesNetes["Estat de Soci"] = params["is_soci"] === "true" ? "SÍ (" + params["validated_dni"] + ")" : "NO"; // Obecte net per enviar a Google Sheets
   
   for (const [key, value] of Object.entries(params)) {
     if (key.startsWith('q_') && value !== '') {

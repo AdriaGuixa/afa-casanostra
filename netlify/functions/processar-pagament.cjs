@@ -9,9 +9,12 @@ exports.handler = async (event, context) => {
   
   const formTitol = params['form-id'] || 'Activitat AFA';
   const totalPagat = params['total-price'] || '0';
+  const isSoci = params['is_soci'] === 'true';
+  const validatedDni = params['validated_dni'] || '';
   
-  // Guardem TOTES les dades del formulari en base64 per passar-les a la següent pantalla
   const rawDataString = Buffer.from(JSON.stringify(params)).toString('base64');
+  
+  const sociTag = isSoci ? `<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold ml-2">SOCI APLICAT</span>` : '';
   
   const simulationHtml = `
     <!DOCTYPE html>
@@ -34,7 +37,10 @@ exports.handler = async (event, context) => {
           <p class="text-sm text-slate-500 mb-1">Pagament per a:</p>
           <p class="font-bold text-slate-800 mb-3">${formTitol}</p>
           <p class="text-sm text-slate-500 mb-1">Import a cobrar:</p>
-          <p class="text-2xl font-bold text-brand-blue">${totalPagat} €</p>
+          <p class="text-2xl font-bold text-brand-blue flex items-center">
+            ${totalPagat} €
+            ${sociTag}
+          </p>
         </div>
         
         <div class="flex gap-4">
