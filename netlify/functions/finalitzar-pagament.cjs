@@ -78,12 +78,12 @@ exports.handler = async (event, context) => {
   for (const [key, value] of Object.entries(params)) {
     if (key.startsWith('q_') && value !== '') {
       const index = key.replace('q_', '');
-      const label = params[`label_q_${index}`] || \`Pregunta \${index}\`;
+      const label = params[`label_q_${index}`] || `Pregunta ${index}`;
       
       dadesNetes[label] = value;
       
-      resumCompraHtmlWeb += \`<li class="mb-2"><span class="text-slate-500">\${label}:</span> <span class="font-semibold text-slate-800">\${value}</span></li>\`;
-      resumCompraHtmlEmail += \`<li><span style="color:#64748b;">\${label}:</span> <strong>\${value}</strong></li>\`;
+      resumCompraHtmlWeb += `<li class="mb-2"><span class="text-slate-500">${label}:</span> <span class="font-semibold text-slate-800">${value}</span></li>`;
+      resumCompraHtmlEmail += `<li><span style="color:#64748b;">${label}:</span> <strong>${value}</strong></li>`;
       
       if (typeof value === 'string' && value.includes('@') && value.includes('.')) {
         userEmail = value;
