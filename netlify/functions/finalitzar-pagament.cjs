@@ -1,6 +1,73 @@
 const querystring = require('querystring');
 const nodemailer = require('nodemailer');
 
+// Funció per generar l'HTML del correu basat en plantilla.html
+function generarCorreuHtml(titol, contingut) {
+  return `
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFA Casa Nostra - Comunicat</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased;">
+  
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; padding: 40px 10px;">
+    <tr>
+      <td align="center">
+        <!-- Contenidor Principal -->
+        <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); max-width: 600px; width: 100%;">
+          
+          <!-- Capçalera -->
+          <tr>
+            <td align="center" style="background-color: #ffffff; padding: 30px; border-bottom: 4px solid #C4122E;">
+              <a href="https://afa-casanostra.netlify.app" target="_blank">
+                <img src="https://afa-casanostra.netlify.app/images/logo-afa-email.png" alt="AFA Casa Nostra" width="160" style="display: block; width: 160px; max-width: 100%; height: auto; border: 0;">
+              </a>
+            </td>
+          </tr>
+
+          <!-- Cos del Correu -->
+          <tr>
+            <td style="padding: 40px; line-height: 1.6; color: #334155; font-size: 16px;">
+              <h1 style="color: #4B5154; font-size: 24px; margin-top: 0; margin-bottom: 20px; font-weight: bold;">${titol}</h1>
+              
+              ${contingut}
+
+              <p style="margin: 30px 0 0 0; font-weight: bold; color: #4B5154;">La Junta de l'AFA Casa Nostra</p>
+            </td>
+          </tr>
+
+          <!-- Peu de pàgina (Footer) -->
+          <tr>
+            <td style="background-color: #4B5154; color: #f8fafc; text-align: center; padding: 30px 40px; font-size: 14px;">
+              <p style="margin: 0 0 10px 0; font-weight: bold; color: #ffffff; font-size: 16px;">AFA Escola Casa Nostra</p>
+              <p style="margin: 0 0 10px 0;">Banyoles / Porqueres</p>
+              <p style="margin: 0 0 20px 0;">
+                <a href="mailto:ampa.escolacasanostra@gmail.com" style="color: #FBB03B; text-decoration: none; font-weight: bold;">ampa.escolacasanostra@gmail.com</a>
+              </p>
+              
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 20px;">
+                <tr>
+                  <td style="border-top: 1px solid #71777A;"></td>
+                </tr>
+              </table>
+
+              <p style="margin: 0; font-size: 12px; color: #cbd5e1; line-height: 1.5;">
+                Heu rebut aquest correu perquè heu realitzat una inscripció o formeu part de l'AFA.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
@@ -11,51 +78,75 @@ exports.handler = async (event, context) => {
     return { statusCode: 400, body: 'Falten dades' };
   }
 
-  // Desempaquetem les dades originals del formulari
   const params = JSON.parse(Buffer.from(rawData, 'base64').toString('utf8'));
   
   const formTitol = params['form-id'] || 'Activitat AFA';
   const totalPagat = params['total-price'] || '0';
   
-  // Intentem trobar algun correu de l'usuari (buscant valors que tinguin @)
   let userEmail = '';
-  let userName = 'Família'; // Valor per defecte
+  let userName = 'Família';
   
-  let resumCompraHtml = '';
+  let resumCompraHtmlWeb = '';
+  let resumCompraHtmlEmail = '';
   
+  // Netejem les dades innecessàries per l'email i muntem les llistes
   for (const [key, value] of Object.entries(params)) {
-    if (key.startsWith('q_')) {
-      resumCompraHtml += `<li class="mb-2"><span class="font-semibold">${value}</span></li>`;
+    if (key.startsWith('q_') && value !== '') {
+      resumCompraHtmlWeb += `<li class="mb-2"><span class="font-semibold">${value}</span></li>`;
+      resumCompraHtmlEmail += `<li><strong>${value}</strong></li>`;
+      
       if (typeof value === 'string' && value.includes('@') && value.includes('.')) {
         userEmail = value;
       } else if (typeof value === 'string' && value.length > 2 && userName === 'Família' && !value.match(/^[0-9]+$/)) {
-        // Assume the first text field that isn't an email might be the name
         userName = value;
       }
     }
   }
 
   // ===== CONFIGURACIÓ EMAILS =====
-  // En producció, caldrà posar les variables d'entorn EMAIL_USER i EMAIL_PASS a Netlify
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail', // Pots canviar-ho
+      service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER || 'ampa.escolacasanostra@gmail.com',
         pass: process.env.EMAIL_PASS || 'falsa-contrasenya',
       }
     });
 
-    const mailTextAfa = `Nova inscripció rebuda per: ${formTitol}\nTotal pagat: ${totalPagat}€\nCorreu usuari: ${userEmail}\nDetalls: ${JSON.stringify(params)}`;
-    const mailTextUser = `Hola!\nHem rebut correctament la teva inscripció per: ${formTitol}.\nImport total pagat: ${totalPagat}€.\n\nGràcies!\nAFA Casa Nostra`;
+    // Contingut HTML per a l'AFA
+    const contingutAfa = `
+      <p style="margin: 0 0 20px 0;">S'ha completat una nova inscripció / pagament amb èxit per l'activitat <strong>${formTitol}</strong>.</p>
+      <div style="background-color: #f1f5f9; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+        <h2 style="margin-top: 0; font-size: 18px; color: #334155;">Detalls de la inscripció:</h2>
+        <ul>${resumCompraHtmlEmail}</ul>
+        <hr style="border: none; border-top: 1px solid #cbd5e1; margin: 15px 0;">
+        <p style="margin: 0; font-size: 18px;"><strong>Total abonat: <span style="color: #C4122E;">${totalPagat}€</span></strong></p>
+      </div>
+      <p style="margin: 0 0 20px 0;">El correu de contacte proporcionat és: <a href="mailto:${userEmail}" style="color: #C4122E;">${userEmail}</a>.</p>
+    `;
+    const htmlAfa = generarCorreuHtml(`Nova inscripció: ${formTitol}`, contingutAfa);
 
-    // 1. Email a l'AFA (i al teu personal com has demanat)
+    // Contingut HTML per a l'Usuari
+    const contingutUser = `
+      <p style="margin: 0 0 20px 0;">Hola ${userName},</p>
+      <p style="margin: 0 0 20px 0;">Hem rebut correctament la teva inscripció i el pagament per <strong>${formTitol}</strong>.</p>
+      <div style="background-color: #f1f5f9; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+        <h2 style="margin-top: 0; font-size: 18px; color: #334155;">Resum de la teva operació:</h2>
+        <ul>${resumCompraHtmlEmail}</ul>
+        <hr style="border: none; border-top: 1px solid #cbd5e1; margin: 15px 0;">
+        <p style="margin: 0; font-size: 18px;"><strong>Total abonat: <span style="color: #C4122E;">${totalPagat}€</span></strong></p>
+      </div>
+      <p style="margin: 0 0 20px 0;">Si tens qualsevol dubte sobre aquesta activitat, pots respondre directament a aquest correu.</p>
+    `;
+    const htmlUser = generarCorreuHtml(`Confirmació d'inscripció: ${formTitol}`, contingutUser);
+
     if (process.env.EMAIL_PASS) {
+      // 1. Email a l'AFA
       await transporter.sendMail({
         from: '"AFA Casa Nostra Web" <ampa.escolacasanostra@gmail.com>',
-        to: 'adriaguixa@gmail.com', // Enviem aquí de moment
+        to: 'adriaguixa@gmail.com',
         subject: `[Nova Inscripció] ${formTitol} - ${totalPagat}€`,
-        text: mailTextAfa
+        html: htmlAfa
       });
       
       // 2. Email a l'Usuari
@@ -64,19 +155,20 @@ exports.handler = async (event, context) => {
           from: '"AFA Casa Nostra" <ampa.escolacasanostra@gmail.com>',
           to: userEmail,
           subject: `Confirmació d'inscripció: ${formTitol}`,
-          text: mailTextUser
+          html: htmlUser
         });
       }
     } else {
-      console.log('SIMULACIÓ EMAIL AFA:', mailTextAfa);
-      console.log('SIMULACIÓ EMAIL USUARI:', mailTextUser);
+      console.log('--- SIMULACIÓ EMAIL AFA HTML ---');
+      console.log(contingutAfa);
+      console.log('--- SIMULACIÓ EMAIL USUARI HTML ---');
+      console.log(contingutUser);
     }
   } catch (error) {
     console.error('Error enviant correus:', error);
-    // No aturem el procés, mostrem la pantalla d'èxit igualment
   }
 
-  // ===== PANTALLA DE RESUM =====
+  // ===== PANTALLA DE RESUM WEB =====
   const successHtml = `
     <!DOCTYPE html>
     <html lang="ca">
@@ -97,7 +189,7 @@ exports.handler = async (event, context) => {
         <div class="bg-slate-50 rounded-xl p-6 text-left border border-slate-200 mb-8 shadow-sm">
           <h2 class="font-bold text-slate-700 mb-4 uppercase tracking-wider text-sm border-b pb-2">Resum de la Compra</h2>
           <ul class="text-slate-600 space-y-2 mb-4">
-            ${resumCompraHtml || '<li>Inscripció confirmada</li>'}
+            ${resumCompraHtmlWeb || '<li>Inscripció confirmada</li>'}
           </ul>
           <div class="border-t border-slate-200 pt-4 mt-2 flex justify-between items-center">
             <span class="font-bold text-slate-700">Total abonat:</span>
