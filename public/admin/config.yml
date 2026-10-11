@@ -20,6 +20,17 @@ collections:
       - {label: "Imatge principal", name: "image", widget: "image", required: false}
       - {label: "Contingut de l'article", name: "body", widget: "markdown"}
 
+  - name: "agenda"
+    label: "Agenda (Dates Clau i Reunions)"
+    folder: "src/content/agenda"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Títol de l'esdeveniment", name: "title", widget: "string"}
+      - {label: "Data de l'esdeveniment", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: "HH:mm"}
+      - {label: "Lloc o Horari (Ex: Sala d'actes a les 19:00h)", name: "lloc", widget: "string", required: false}
+      - {label: "Descripció breu", name: "description", widget: "string", required: false}
+
   - name: "festes"
     label: "Festes i Esdeveniments"
     folder: "src/content/festes"
