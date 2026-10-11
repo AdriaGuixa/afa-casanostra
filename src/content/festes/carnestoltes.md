@@ -1,5 +1,6 @@
 ---
 title: "Carnestoltes"
+ordre: 3
 ---
 L'escola s'omple de color! L'AFA s'encarrega d'ajudar amb la comparsa de l'escola a la rua del poble i organitza el berenar posterior i concurs de disfresses.
 

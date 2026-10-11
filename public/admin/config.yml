@@ -24,6 +24,7 @@ collections:
     label: "Agenda (Dates Clau i Reunions)"
     folder: "src/content/agenda"
     create: true
+    sortable_fields: ["date", "title"]
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
       - {label: "Títol de l'esdeveniment", name: "title", widget: "string"}
@@ -35,8 +36,10 @@ collections:
     label: "Festes i Esdeveniments"
     folder: "src/content/festes"
     create: true
+    sortable_fields: ["ordre", "title"]
     fields:
       - {label: "Nom de la festa", name: "title", widget: "string"}
+      - {label: "Ordre d'aparició a la web (1, 2, 3...)", name: "ordre", widget: "number", value_type: "int", default: 1, required: false, hint: "Posa 1 per a la primera del curs (Castanyada), 2 per a Nadal, etc."}
       - {label: "Imatge destacada", name: "image", widget: "image", required: false}
       - {label: "Descripció i Detalls (Text)", name: "body", widget: "markdown"}
 

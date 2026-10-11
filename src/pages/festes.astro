@@ -1,6 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-const festes = Object.values(import.meta.glob('../content/festes/*.md', { eager: true }));
+const allFestes = Object.values(import.meta.glob('../content/festes/*.md', { eager: true })) as any[];
+const sortedFestes = allFestes.sort((a, b) => {
+  const ordreA = a.frontmatter.ordre ?? 99;
+  const ordreB = b.frontmatter.ordre ?? 99;
+  return ordreA - ordreB;
+});
 ---
 
 <Layout title="Esdeveniments i Festes">
@@ -19,7 +24,7 @@ const festes = Object.values(import.meta.glob('../content/festes/*.md', { eager:
       </div>
 
       <div class="space-y-12 mt-10">
-        {festes.map((festa) => (
+        {sortedFestes.map((festa) => (
           <section class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
             <h2 class="text-3xl font-bold text-brand-blue mb-6 border-b border-slate-100 pb-4">{festa.frontmatter.title}</h2>
             {festa.frontmatter.image && (
@@ -31,7 +36,7 @@ const festes = Object.values(import.meta.glob('../content/festes/*.md', { eager:
           </section>
         ))}
         
-        {festes.length === 0 && (
+        {sortedFestes.length === 0 && (
           <p class="text-slate-500 italic">Encara no s'ha afegit cap festa. La junta les pot afegir des del panell d'administració.</p>
         )}
       </div>
