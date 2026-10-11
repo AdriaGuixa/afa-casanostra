@@ -3,10 +3,11 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Inici">
-  <!-- Bàner d'Avisos -->
+  <!-- Bàner d'Avisos (Amagat temporalment perquè l'AFA no gestiona extraescolars)
   <div class="bg-brand-accent text-white text-center py-2 px-4 text-sm font-medium">
     📢 Avís: Ja estan obertes les inscripcions per a les extraescolars del curs vinent! <a href="/serveis/extraescolars" class="underline hover:text-blue-900">Inscriu-t'hi aquí</a>.
   </div>
+  -->
 
   <!-- Hero Section -->
   <section class="bg-brand-light/10 py-16">
@@ -65,7 +66,37 @@ import Layout from '../layouts/Layout.astro';
     <h2 class="text-3xl font-bold text-center text-brand-blue mb-10">Serveis Principals</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       
-      <!-- Card Menjador -->
+      <!-- Card Llibres de Text -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition">
+        <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
+          📚
+        </div>
+        <h3 class="text-xl font-bold mb-2">Socialització de Llibres</h3>
+        <p class="text-slate-600 mb-4">Projecte de reutilització i comanda de llibres de text per a tots els cursos.</p>
+        <a href="/serveis/llibres" class="text-brand-light font-medium hover:underline">Més informació &rarr;</a>
+      </div>
+
+      <!-- Card Tallers Famílies -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition">
+        <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
+          🎨
+        </div>
+        <h3 class="text-xl font-bold mb-2">Tallers i Famílies</h3>
+        <p class="text-slate-600 mb-4">Xerrades, activitats de formació i trobades familiars durant el curs escolar.</p>
+        <a href="/serveis/tallers" class="text-brand-light font-medium hover:underline">Més informació &rarr;</a>
+      </div>
+
+      <!-- Card Botiga -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition">
+        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
+          🛍️
+        </div>
+        <h3 class="text-xl font-bold mb-2">Botiga i Pagaments</h3>
+        <p class="text-slate-600 mb-4">Inscripcions a festes, quotes de soci i pagament segur amb targeta.</p>
+        <a href="/botiga" class="text-brand-light font-medium hover:underline">Accedir a la botiga &rarr;</a>
+      </div>
+
+      <!-- Amagats temporalment (l'AFA no gestiona menjador ni extraescolars actualment):
       <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition">
         <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
           🍽️
@@ -75,7 +106,6 @@ import Layout from '../layouts/Layout.astro';
         <a href="/serveis/menjador" class="text-brand-light font-medium hover:underline">Més informació &rarr;</a>
       </div>
 
-      <!-- Card Extraescolars -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition">
         <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
           ⚽
@@ -84,16 +114,7 @@ import Layout from '../layouts/Layout.astro';
         <p class="text-slate-600 mb-4">Catàleg d'activitats per curs, horaris i formularis d'inscripció.</p>
         <a href="/serveis/extraescolars" class="text-brand-light font-medium hover:underline">Més informació &rarr;</a>
       </div>
-
-      <!-- Card Botiga -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition">
-        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
-          🛍️
-        </div>
-        <h3 class="text-xl font-bold mb-2">Botiga i Pagaments</h3>
-        <p class="text-slate-600 mb-4">Adquisició de llibres, tiquets de festes o material de forma segura i ràpida.</p>
-        <a href="/botiga" class="text-brand-light font-medium hover:underline">Accedir a la botiga &rarr;</a>
-      </div>
+      -->
 
     </div>
   </section>
