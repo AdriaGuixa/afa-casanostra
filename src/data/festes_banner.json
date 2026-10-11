@@ -1,1 +1,7 @@
-{"actiu": false, "titol": "Venda de Tiquets Oberta", "text": "Ja podeu adquirir els tiquets per a la propera festa o esdeveniment a la nostra botiga virtual.", "boto_text": "Comprar tiquets", "boto_enllac": "/botiga"}
+{
+  "actiu": false,
+  "titol": "Inscripcions Obertes",
+  "text": "Ja podeu inscriure-us i adquirir els tiquets per a la propera festa o esdeveniment.",
+  "boto_text": "Inscriu-t'hi ara",
+  "boto_enllac": ""
+}
