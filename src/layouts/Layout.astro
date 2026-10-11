@@ -66,9 +66,60 @@ const { title } = Astro.props;
           </a>
         </div>
 
-        <div class="md:hidden">
-          <button class="text-brand-blue p-2">Menú</button>
+        <div class="md:hidden flex items-center">
+          <button id="mobile-menu-btn" type="button" aria-label="Menú de navegació" aria-expanded="false" class="text-brand-blue p-2 rounded-lg hover:bg-slate-100 transition flex items-center gap-1.5 focus:outline-none cursor-pointer">
+            <svg id="hamburger-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span class="text-sm font-bold">Menú</span>
+          </button>
         </div>
+      </div>
+
+      <!-- Menú Desplegable Mòbil -->
+      <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-100 shadow-xl px-5 py-4 transition-all">
+        <nav class="flex flex-col space-y-1 font-medium text-brand-blue text-base">
+          <a href="/" class="py-2.5 border-b border-slate-50 hover:text-brand-accent transition flex items-center justify-between">
+            <span>Inici</span> <span class="text-slate-300">&rarr;</span>
+          </a>
+          <a href="/afa" class="py-2.5 border-b border-slate-50 hover:text-brand-accent transition flex items-center justify-between">
+            <span>L'AFA (Qui som)</span> <span class="text-slate-300">&rarr;</span>
+          </a>
+          
+          <!-- Subapartat Serveis al mòbil -->
+          <div class="py-2.5 border-b border-slate-50">
+            <span class="text-xs uppercase text-slate-400 font-bold tracking-wider block mb-2">Serveis</span>
+            <div class="pl-3 space-y-2 text-sm text-slate-700">
+              <a href="/serveis/llibres" class="block py-1 hover:text-brand-accent transition">📚 Llibres de Text</a>
+              <a href="/serveis/tallers" class="block py-1 hover:text-brand-accent transition">🎨 Tallers Famílies</a>
+            </div>
+          </div>
+
+          <a href="/agenda" class="py-2.5 border-b border-slate-50 hover:text-brand-accent transition flex items-center justify-between">
+            <span>📅 Agenda i Festes</span> <span class="text-slate-300">&rarr;</span>
+          </a>
+          <a href="/actualitat" class="py-2.5 border-b border-slate-50 hover:text-brand-accent transition flex items-center justify-between">
+            <span>📰 Actualitat</span> <span class="text-slate-300">&rarr;</span>
+          </a>
+          <a href="/documents" class="py-2.5 border-b border-slate-50 hover:text-brand-accent transition flex items-center justify-between">
+            <span>📂 Documents i Actes</span> <span class="text-slate-300">&rarr;</span>
+          </a>
+          <a href="/carnet" class="py-2.5 border-b border-slate-50 hover:text-brand-accent transition flex items-center justify-between">
+            <span>💳 El meu Carnet</span> <span class="text-slate-300">&rarr;</span>
+          </a>
+          <a href="/contacte" class="py-2.5 border-b border-slate-50 hover:text-brand-accent transition flex items-center justify-between">
+            <span>✉️ Contacte</span> <span class="text-slate-300">&rarr;</span>
+          </a>
+
+          <div class="pt-4">
+            <a href="/contacte" class="block text-center bg-brand-blue text-white py-3 rounded-xl font-bold shadow-sm hover:bg-brand-blue/90 transition">
+              Fes-te Soci/a
+            </a>
+          </div>
+        </nav>
       </div>
     </header>
 
@@ -100,13 +151,53 @@ const { title } = Astro.props;
         <div>
           <h3 class="font-bold text-lg mb-4">Contacte</h3>
           <p class="text-blue-100 text-sm mb-2">ampa.escolacasanostra@gmail.com</p>
-          <div class="flex gap-3 mt-4">
-            <!-- Xarxes socials placeholders -->
-            <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition">IG</a>
-            <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition">FB</a>
-          </div>
         </div>
       </div>
     </footer>
+
+    <script>
+      function initMobileMenu() {
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        const hamburger = document.getElementById('hamburger-icon');
+        const close = document.getElementById('close-icon');
+
+        if (!btn || !menu) return;
+
+        // Remove any previous listener by cloning or direct toggle
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const isHidden = menu.classList.contains('hidden');
+          if (isHidden) {
+            menu.classList.remove('hidden');
+            btn.setAttribute('aria-expanded', 'true');
+            if (hamburger) hamburger.classList.add('hidden');
+            if (close) close.classList.remove('hidden');
+          } else {
+            menu.classList.add('hidden');
+            btn.setAttribute('aria-expanded', 'false');
+            if (hamburger) hamburger.classList.remove('hidden');
+            if (close) close.classList.add('hidden');
+          }
+        };
+
+        // Tancar en clicar fora del menú
+        document.addEventListener('click', (e) => {
+          if (!menu.contains(e.target as Node) && !btn.contains(e.target as Node)) {
+            menu.classList.add('hidden');
+            btn.setAttribute('aria-expanded', 'false');
+            if (hamburger) hamburger.classList.remove('hidden');
+            if (close) close.classList.add('hidden');
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMobileMenu);
+      } else {
+        initMobileMenu();
+      }
+      document.addEventListener('astro:page-load', initMobileMenu);
+    </script>
   </body>
 </html>
