@@ -1,63 +1,139 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const allDocs = Object.values(import.meta.glob('../content/documents/*.md', { eager: true })) as any[];
+
+const categories = [
+  {
+    id: "Actes d'Assemblea",
+    title: "Actes d'Assemblees",
+    icon: "🗂️",
+    desc: "Acords presos i resums oficials de les assemblees generals ordinàries i extraordinàries."
+  },
+  {
+    id: "Estatuts i RRI",
+    title: "Estatuts i Reglament Intern",
+    icon: "📜",
+    desc: "Els documents fundacionals i de règim intern que marquen el funcionament de l'AFA."
+  },
+  {
+    id: "Informació Econòmica",
+    title: "Informació Econòmica",
+    icon: "📊",
+    desc: "Consulta dels pressupostos anuals aprovats, balanços de comissions i estat de comptes."
+  },
+  {
+    id: "Formularis",
+    title: "Formularis i Autoritzacions",
+    icon: "📝",
+    desc: "Descàrrega de documents per a tràmits comuns com ordres SEPA, inscripcions o cobraments."
+  },
+  {
+    id: "Altres",
+    title: "Altres Documents",
+    icon: "📁",
+    desc: "Circulars institucionals, convenis i altres arxius d'interès per a la comunitat educativa."
+  }
+];
+
+function formatDate(dateStr: string) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('ca-ES', { month: 'long', year: 'numeric' });
+}
 ---
 
 <Layout title="Transparència i Documents">
-  <div class="max-w-4xl mx-auto px-4 py-12">
-    <h1 class="text-4xl font-bold text-brand-blue mb-8">Transparència i Documents Oficials</h1>
+  <div class="max-w-5xl mx-auto px-4 py-12">
     
-    <div class="prose prose-lg max-w-none text-slate-700">
-      <p>A l'AFA Casa Nostra apostem per la transparència. En aquest espai trobareu tots els documents oficials de l'entitat, les actes de les assemblees, pressupostos i formularis útils per a les famílies.</p>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
-        <!-- Estatuts -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start gap-4">
-          <div class="text-4xl shrink-0">📜</div>
-          <div>
-            <h3 class="text-xl font-bold text-brand-blue mb-2">Estatuts i Reglament</h3>
-            <p class="text-sm text-slate-600 mb-4">Els documents fundacionals i de règim intern que marquen el funcionament de l'Associació.</p>
-            <a href="#" class="text-brand-light font-medium hover:underline flex items-center gap-1">Descarregar Estatuts PDF &darr;</a>
-          </div>
-        </div>
-
-        <!-- Actes -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start gap-4">
-          <div class="text-4xl shrink-0">🗂️</div>
-          <div>
-            <h3 class="text-xl font-bold text-brand-blue mb-2">Actes d'Assemblees</h3>
-            <p class="text-sm text-slate-600 mb-4">Acords presos a les Assemblees Generals (documents anonimitzats per protecció de dades).</p>
-            <div class="space-y-2 text-sm">
-              <a href="#" class="block text-brand-light font-medium hover:underline">Acta Assemblea Octubre 2025</a>
-              <a href="#" class="block text-brand-light font-medium hover:underline">Acta Assemblea Juny 2025</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Economia -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start gap-4">
-          <div class="text-4xl shrink-0">📊</div>
-          <div>
-            <h3 class="text-xl font-bold text-brand-blue mb-2">Informació Econòmica</h3>
-            <p class="text-sm text-slate-600 mb-4">Consulta dels pressupostos anuals aprovats, els balanços de les comissions i l'estat de comptes.</p>
-            <a href="#" class="text-brand-light font-medium hover:underline flex items-center gap-1">Veure Pressupost Actual &darr;</a>
-          </div>
-        </div>
-
-        <!-- Formularis -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start gap-4">
-          <div class="text-4xl shrink-0">📝</div>
-          <div>
-            <h3 class="text-xl font-bold text-brand-blue mb-2">Formularis Útils</h3>
-            <p class="text-sm text-slate-600 mb-4">Descàrrega de documents per a tràmits comuns com inscripcions o cobraments.</p>
-            <div class="space-y-2 text-sm">
-              <a href="#" class="block text-brand-light font-medium hover:underline">Ordre de Domiciliació (SEPA)</a>
-              <a href="#" class="block text-brand-light font-medium hover:underline">Autorització de sortides</a>
-              <a href="#" class="block text-brand-light font-medium hover:underline">Inscripció a l'AFA</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div class="mb-12">
+      <h1 class="text-4xl font-extrabold text-brand-blue mb-4">Transparència i Documents Oficials</h1>
+      <p class="text-lg text-slate-600 leading-relaxed max-w-3xl">
+        A l'AFA Casa Nostra apostem per la màxima transparència. En aquest espai posem a disposició de totes les famílies associades les actes de les assemblees, els estatuts, els balanços econòmics i els formularis oficials descarregables en PDF.
+      </p>
     </div>
+
+    <!-- Graella de Categories -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {categories.map((cat) => {
+        const docsInCat = allDocs
+          .filter((doc) => doc.frontmatter.tipus === cat.id)
+          .sort((a, b) => new Date(b.frontmatter.date || 0).valueOf() - new Date(a.frontmatter.date || 0).valueOf());
+
+        // Si és la categoria 'Altres' i no té documents, no cal mostrar-la buida
+        if (cat.id === 'Altres' && docsInCat.length === 0) return null;
+
+        return (
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-3 mb-3">
+                <span class="text-3xl shrink-0 p-2.5 bg-slate-50 border border-slate-100 rounded-xl">{cat.icon}</span>
+                <div>
+                  <h2 class="text-xl font-bold text-slate-800">{cat.title}</h2>
+                  <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                    {docsInCat.length} {docsInCat.length === 1 ? 'document' : 'documents'}
+                  </span>
+                </div>
+              </div>
+              <p class="text-sm text-slate-500 mb-6 leading-relaxed">
+                {cat.desc}
+              </p>
+
+              <!-- Llista de documents d'aquesta categoria -->
+              {docsInCat.length > 0 ? (
+                <div class="space-y-3">
+                  {docsInCat.map((doc) => (
+                    <div class="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div class="flex-grow">
+                        <h3 class="font-bold text-slate-800 text-sm">{doc.frontmatter.title}</h3>
+                        {doc.frontmatter.description && (
+                          <p class="text-xs text-slate-500 mt-0.5 leading-snug">{doc.frontmatter.description}</p>
+                        )}
+                        {doc.frontmatter.date && (
+                          <span class="text-[11px] text-slate-400 font-medium capitalize block mt-1">
+                            🗓️ {formatDate(doc.frontmatter.date)}
+                          </span>
+                        )}
+                      </div>
+
+                      {doc.frontmatter.file ? (
+                        <a 
+                          href={doc.frontmatter.file} 
+                          target="_blank" 
+                          download
+                          class="shrink-0 inline-flex items-center gap-1.5 bg-brand-blue text-white font-semibold px-3.5 py-1.5 rounded-lg hover:bg-brand-blue/90 transition text-xs shadow-sm self-start sm:self-center"
+                        >
+                          <span>⬇️</span> PDF
+                        </a>
+                      ) : (
+                        <span class="text-xs text-slate-400 italic">Properament</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div class="p-4 rounded-xl border border-dashed border-slate-200 text-center text-slate-400 text-xs italic">
+                  Encara no s'ha pujat cap document en aquesta secció.
+                </div>
+              )}
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+              <span>Gestió documental AFA</span>
+              <span>Format PDF</span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Avís de seguretat / RGPD -->
+    <div class="mt-12 bg-blue-50/60 border border-blue-200/60 rounded-xl p-5 text-sm text-blue-900 flex items-start gap-3">
+      <span class="text-xl">ℹ️</span>
+      <p class="leading-relaxed">
+        <strong>Protecció de Dades:</strong> Totes les actes d'assemblea i documents públics es troben prèviament revisats i anonimitzats pel que fa a dades personals de caràcter sensible per garantir el compliment del RGPD.
+      </p>
+    </div>
+
   </div>
 </Layout>
