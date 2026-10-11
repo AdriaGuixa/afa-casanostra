@@ -21,27 +21,21 @@ collections:
       - {label: "Contingut de l'article", name: "body", widget: "markdown"}
 
   - name: "agenda"
-    label: "Agenda (Dates Clau i Reunions)"
+    label: "Agenda i Esdeveniments"
     folder: "src/content/agenda"
     create: true
-    sortable_fields: ["date", "title"]
+    sortable_fields: ["date", "title", "tipus"]
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
-      - {label: "Títol de l'esdeveniment", name: "title", widget: "string"}
-      - {label: "Data de l'esdeveniment", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: "HH:mm"}
-      - {label: "Lloc o Horari (Ex: Sala d'actes a les 19:00h)", name: "lloc", widget: "string", required: false}
-      - {label: "Descripció breu", name: "description", widget: "string", required: false}
-
-  - name: "festes"
-    label: "Festes i Esdeveniments"
-    folder: "src/content/festes"
-    create: true
-    sortable_fields: ["ordre", "title"]
-    fields:
-      - {label: "Nom de la festa", name: "title", widget: "string"}
-      - {label: "Ordre d'aparició a la web (1, 2, 3...)", name: "ordre", widget: "number", value_type: "int", default: 1, required: false, hint: "Posa 1 per a la primera del curs (Castanyada), 2 per a Nadal, etc."}
-      - {label: "Imatge destacada", name: "image", widget: "image", required: false}
-      - {label: "Descripció i Detalls (Text)", name: "body", widget: "markdown"}
+      - {label: "Títol de l'acte", name: "title", widget: "string"}
+      - {label: "Data i hora de l'acte", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: "HH:mm"}
+      - {label: "Tipus d'acte", name: "tipus", widget: "select", options: ["Festa", "Reunió / Assemblea", "Xerrada o Taller", "Altres"], default: "Festa"}
+      - {label: "Lloc o Horari breu (Ex: Pati a les 16:30h)", name: "lloc", widget: "string", required: false}
+      - {label: "Imatge o Cartell (Opcional)", name: "image", widget: "image", required: false}
+      - {label: "Enllaç d'inscripció o pagament (Opcional)", name: "enllac_inscripcio", widget: "string", required: false, hint: "Posa l'enllaç al formulari si cal comprar tiquets o inscriure's prèviament."}
+      - {label: "Text del botó d'inscripció", name: "text_boto", widget: "string", default: "Inscriu-t'hi ara", required: false}
+      - {label: "Descripció breu (per a la portada)", name: "description", widget: "string", required: false}
+      - {label: "Explicació i Detalls complets", name: "body", widget: "markdown", required: false}
 
   - name: "documents"
     label: "Documents i Actes"

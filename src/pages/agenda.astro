@@ -1,0 +1,164 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const allEvents = Object.values(import.meta.glob('../content/agenda/*.md', { eager: true })) as any[];
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+// Separar en pròxims i passats
+const upcomingEvents = allEvents
+  .filter(e => new Date(e.frontmatter.date) >= today)
+  .sort((a, b) => new Date(a.frontmatter.date).valueOf() - new Date(b.frontmatter.date).valueOf());
+
+const pastEvents = allEvents
+  .filter(e => new Date(e.frontmatter.date) < today)
+  .sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
+
+function getBadgeInfo(tipus: string) {
+  switch (tipus) {
+    case 'Festa':
+      return { label: 'Festa escolar', icon: '🎉', bg: 'bg-amber-100 text-amber-800 border-amber-200' };
+    case 'Reunió / Assemblea':
+      return { label: 'Reunió / Assemblea', icon: '👥', bg: 'bg-blue-100 text-blue-800 border-blue-200' };
+    case 'Xerrada o Taller':
+      return { label: 'Taller / Formació', icon: '🎓', bg: 'bg-purple-100 text-purple-800 border-purple-200' };
+    default:
+      return { label: tipus || 'Esdeveniment', icon: '📌', bg: 'bg-slate-100 text-slate-700 border-slate-200' };
+  }
+}
+
+function formatDate(dateString: string) {
+  const d = new Date(dateString);
+  const day = d.getDate();
+  const rawMonth = d.toLocaleDateString('ca-ES', { month: 'short' }).replace('.', '').trim();
+  const month = rawMonth.charAt(0).toUpperCase() + rawMonth.slice(1);
+  const fullDate = d.toLocaleDateString('ca-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const time = d.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
+  return { day, month, fullDate, time };
+}
+---
+
+<Layout title="Agenda i Esdeveniments">
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    
+    <div class="mb-12 text-center md:text-left">
+      <h1 class="text-4xl font-extrabold text-brand-blue mb-4">Agenda i Esdeveniments</h1>
+      <p class="text-lg text-slate-600 leading-relaxed max-w-2xl">
+        El calendari complet de les trobades de l'AFA: festes tradicionals, assemblees generals de famílies, xerrades i activitats durant el curs escolar.
+      </p>
+    </div>
+
+    <!-- Secció: Pròxims Esdeveniments -->
+    <div class="space-y-8 mb-16">
+      <h2 class="text-2xl font-bold text-slate-800 border-b border-slate-200 pb-3 flex items-center gap-2">
+        <span>Pròxims Actes i Festes</span>
+        <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 text-brand-blue">
+          {upcomingEvents.length}
+        </span>
+      </h2>
+
+      {upcomingEvents.length > 0 ? (
+        upcomingEvents.map((event) => {
+          const { day, month, fullDate, time } = formatDate(event.frontmatter.date);
+          const badge = getBadgeInfo(event.frontmatter.tipus);
+          const hasTime = time !== '00:00';
+          const isParty = event.frontmatter.tipus === 'Festa';
+
+          return (
+            <article class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition">
+              <div class="p-6 md:p-8 flex flex-col md:flex-row gap-6">
+                
+                <!-- Data Destacada -->
+                <div class="flex md:flex-col items-center justify-center shrink-0">
+                  <div class={`${isParty ? 'bg-brand-accent' : 'bg-brand-blue'} text-white rounded-xl p-4 w-24 h-24 flex flex-col items-center justify-center text-center shadow-inner`}>
+                    <span class="text-3xl font-black leading-none">{day}</span>
+                    <span class="text-sm font-bold uppercase tracking-wider mt-1">{month}</span>
+                  </div>
+                </div>
+
+                <!-- Contingut Principal -->
+                <div class="flex-grow">
+                  <div class="flex flex-wrap items-center gap-2 mb-2">
+                    <span class={`text-xs font-bold px-2.5 py-1 rounded-md border flex items-center gap-1.5 ${badge.bg}`}>
+                      <span>{badge.icon}</span>
+                      <span>{badge.label}</span>
+                    </span>
+                    <span class="text-xs text-slate-500 capitalize">
+                      🗓️ {fullDate} {hasTime && `• ⏰ ${time}h`}
+                    </span>
+                  </div>
+
+                  <h3 class="text-2xl font-bold text-slate-900 mb-3">{event.frontmatter.title}</h3>
+
+                  {event.frontmatter.lloc && (
+                    <p class="text-sm text-slate-600 font-medium mb-4 flex items-center gap-1.5">
+                      <span>📍</span> <span>{event.frontmatter.lloc}</span>
+                    </p>
+                  )}
+
+                  {event.frontmatter.image && (
+                    <img src={event.frontmatter.image} alt={event.frontmatter.title} class="w-full h-auto rounded-xl mb-4 object-cover max-h-72 border border-slate-100" />
+                  )}
+
+                  <div class="prose prose-slate max-w-none text-slate-600 mb-6 leading-relaxed">
+                    <event.Content />
+                  </div>
+
+                  {event.frontmatter.enllac_inscripcio && (
+                    <div class="pt-2">
+                      <a 
+                        href={event.frontmatter.enllac_inscripcio} 
+                        class="inline-flex items-center gap-2 bg-green-600 text-white font-bold py-2.5 px-6 rounded-lg hover:bg-green-700 transition shadow-sm"
+                      >
+                        <span>🎟️</span> {event.frontmatter.text_boto || "Inscriu-t'hi ara"}
+                      </a>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            </article>
+          );
+        })
+      ) : (
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-8 text-center text-slate-600">
+          <span class="text-4xl block mb-2">🌱</span>
+          <p class="font-medium">No hi ha actes programats properament.</p>
+          <p class="text-sm text-slate-400 mt-1">La Junta publicarà noves dates a mesura que s'acostin les festes.</p>
+        </div>
+      )}
+    </div>
+
+    <!-- Secció: Històric d'Actes Passats -->
+    {pastEvents.length > 0 && (
+      <div class="mt-16 pt-8 border-t border-slate-200">
+        <h2 class="text-xl font-bold text-slate-600 mb-6 flex items-center gap-2">
+          <span>Actes Realitzats d'aquest curs</span>
+        </h2>
+
+        <div class="grid gap-4">
+          {pastEvents.map((event) => {
+            const { fullDate } = formatDate(event.frontmatter.date);
+            return (
+              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row justify-between sm:items-center gap-2 opacity-80 hover:opacity-100 transition">
+                <div>
+                  <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block sm:inline sm:mr-3">
+                    {fullDate}
+                  </span>
+                  <strong class="text-slate-800">{event.frontmatter.title}</strong>
+                </div>
+                {event.frontmatter.lloc && (
+                  <span class="text-xs text-slate-500 italic">
+                    📍 {event.frontmatter.lloc}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+  </div>
+</Layout>

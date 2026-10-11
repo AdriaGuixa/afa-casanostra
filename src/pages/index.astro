@@ -51,8 +51,8 @@ function formatEventDate(dateString: string) {
         <a href="/serveis/llibres" class="bg-white hover:bg-slate-50 text-brand-blue border border-slate-200 font-medium py-3 px-6 rounded-lg shadow transition flex items-center gap-2">
           📚 Llibres de Text
         </a>
-        <a href="/festes" class="bg-white hover:bg-slate-50 text-brand-blue border border-slate-200 font-medium py-3 px-6 rounded-lg shadow transition flex items-center gap-2">
-          🎉 Esdeveniments
+        <a href="/agenda" class="bg-white hover:bg-slate-50 text-brand-blue border border-slate-200 font-medium py-3 px-6 rounded-lg shadow transition flex items-center gap-2">
+          📅 Agenda i Festes
         </a>
       </div>
     </div>
@@ -62,24 +62,29 @@ function formatEventDate(dateString: string) {
   <section class="py-16 max-w-6xl mx-auto px-4 border-b border-slate-100">
     <div class="flex items-center justify-between mb-8">
       <h2 class="text-3xl font-bold text-brand-blue">Agenda Propera</h2>
-      <a href="/festes" class="text-brand-light font-medium hover:underline hidden sm:block">Veure festes i esdeveniments &rarr;</a>
+      <a href="/agenda" class="text-brand-light font-medium hover:underline hidden sm:block">Veure tota l'agenda &rarr;</a>
     </div>
     
     {displayEvents.length > 0 ? (
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         {displayEvents.map((event, index) => {
           const { day, month } = formatEventDate(event.frontmatter.date);
-          const isEven = index % 2 === 0;
+          const isParty = event.frontmatter.tipus === 'Festa';
           return (
             <div class="flex bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition">
-              <div class={`${isEven ? 'bg-brand-blue' : 'bg-brand-accent'} text-white p-6 flex flex-col justify-center items-center min-w-[100px]`}>
+              <div class={`${isParty ? 'bg-brand-accent' : 'bg-brand-blue'} text-white p-6 flex flex-col justify-center items-center min-w-[100px]`}>
                 <span class="text-3xl font-bold">{day}</span>
                 <span class="uppercase text-sm tracking-wider font-semibold">{month}</span>
               </div>
               <div class="p-6 flex flex-col justify-center">
+                {event.frontmatter.tipus && (
+                  <span class="text-xs font-bold text-brand-light uppercase tracking-wider mb-1">
+                    {event.frontmatter.tipus}
+                  </span>
+                )}
                 <h3 class="font-bold text-lg mb-1 text-slate-800">{event.frontmatter.title}</h3>
                 {event.frontmatter.lloc && (
-                  <p class="text-slate-600 text-sm font-medium mb-1">{event.frontmatter.lloc}</p>
+                  <p class="text-slate-600 text-sm font-medium mb-1">📍 {event.frontmatter.lloc}</p>
                 )}
                 {event.frontmatter.description && (
                   <p class="text-slate-500 text-sm leading-relaxed">{event.frontmatter.description}</p>
