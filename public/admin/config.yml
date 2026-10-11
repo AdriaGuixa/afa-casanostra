@@ -60,6 +60,15 @@ collections:
         name: "settings"
         fields:
           - {label: "Enllaç CSV de Google Sheets (Llista de Socis Actius)", name: "socis_csv_url", widget: "string", required: false, hint: "Ves al teu Google Sheets d'inscrits > Fitxer > Comparteix > Publica a la web > Tria CSV i enganxa l'enllaç aquí."}
+      - file: "src/data/festes_banner.json"
+        label: "Bàner de Venda de Tiquets (Festes)"
+        name: "festes_banner"
+        fields:
+          - {label: "Activar Bàner a la Web?", name: "actiu", widget: "boolean", default: false, hint: "Activa aquest interruptor només quan hi hagi una venda de tiquets o inscripció en marxa."}
+          - {label: "Títol de l'avís", name: "titol", widget: "string", default: "Venda de Tiquets Oberta"}
+          - {label: "Descripció o instruccions", name: "text", widget: "text", default: "Ja podeu adquirir els tiquets per a la propera festa o esdeveniment a la nostra botiga virtual."}
+          - {label: "Text del botó", name: "boto_text", widget: "string", default: "Comprar tiquets"}
+          - {label: "Enllaç del botó (Ex: /botiga o /formularis/dinar)", name: "boto_enllac", widget: "string", default: "/botiga"}
 
   - name: "formularis"
     label: "Formularis Natius (amb Pagament)"
