@@ -1,6 +1,6 @@
 ---
-title: "Festa de Final de Curs"
-ordre: 4
+title: Festa de Final de Curs
+ordre: 5
 ---
 És l'esdeveniment més esperat de l'any! Celebrem l'inici de l'estiu i acomiadem els alumnes que canvien de cicle amb una gran festa al pati de l'escola.
 
