@@ -45,7 +45,7 @@ collections:
     slug: "{{year}}-{{month}}-{{slug}}"
     fields:
       - {label: "Títol del document", name: "title", widget: "string"}
-      - {label: "Data del document o assemblea", name: "date", widget: "date", default: "{{now}}"}
+      - {label: "Data del document o assemblea", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD"}
       - {label: "Arxiu PDF", name: "file", widget: "file"}
       - {label: "Secció", name: "tipus", widget: "select", options: ["Estatuts i RRI", "Actes d'Assemblea", "Informació Econòmica", "Formularis", "Altres"], default: "Actes d'Assemblea"}
       - {label: "Descripció breu (opcional)", name: "description", widget: "string", required: false}
