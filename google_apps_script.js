@@ -44,3 +44,48 @@ function doPost(e) {
   return ContentService.createTextOutput(JSON.stringify({"status": "success"}))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+
+/**
+ * Trigger automàtic de Google Sheets:
+ * - Assigna el codi de soci (AFA-2026-XXX) a la columna A quan s'introdueix informació a les columnes B..G.
+ * - Esborra el codi de la columna A si es buiden totes les columnes (B, C, D, E, F i G).
+ */
+function onEdit(e) {
+  var sheet = e.source.getActiveSheet();
+  var range = e.range;
+  
+  var filaInici = range.getRow();
+  var filaFinal = range.getLastRow();
+  var colInici = range.getColumn();
+  var colFinal = range.getLastColumn();
+  
+  // Només actuar si l'edició afecta files de dades (fila >= 2)
+  // i toca alguna de les columnes B a G (columnes 2 a 7)
+  if (filaFinal >= 2 && colInici <= 7 && colFinal >= 2) {
+    var filaMinima = Math.max(filaInici, 2);
+    
+    for (var f = filaMinima; f <= filaFinal; f++) {
+      var celdaSoci = sheet.getRange(f, 1);
+      
+      // Llegim les columnes B a G d'aquesta fila (6 columnes: B, C, D, E, F, G)
+      var valorsFila = sheet.getRange(f, 2, 1, 6).getValues()[0];
+      
+      // Comprovem si totes les columnes B, C, D, E, F i G estan completament buides
+      var totaBuida = valorsFila.every(function(val) {
+        return val === "" || val === null || val === undefined || String(val).trim() === "";
+      });
+      
+      if (totaBuida) {
+        // Si no hi ha cap dada a B, C, D, E, F i G -> esborrem el codi de la columna A
+        celdaSoci.clearContent();
+      } else {
+        // Si hi ha com a mínim alguna dada i la columna A està buida -> generem el codi automàtic
+        if (celdaSoci.getValue() === "") {
+          var numSeq = String(f - 1).padStart(3, "0");
+          celdaSoci.setValue("AFA-2026-" + numSeq);
+        }
+      }
+    }
+  }
+}
