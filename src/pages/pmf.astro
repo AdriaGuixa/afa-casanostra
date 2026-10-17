@@ -17,7 +17,7 @@ const faqs = [
   },
   {
     q: "On puc aconseguir el meu carnet digital de soci?",
-    a: "Un cop realitzat el pagament de la quota, l'AFA us enviarà per correu electrònic el vostre carnet digital amb el codi QR per poder-vos beneficiar dels descomptes a la botiga de llibres i comerços adherits."
+    a: 'Un cop realitzat el pagament de la quota, pots generar i descarregar el teu carnet digital amb el codi QR directament a la secció <a href="/carnet" class="text-brand-blue font-medium hover:underline">El meu Carnet</a> d\'aquesta web, introduint el teu DNI i el correu electrònic. El podràs descarregar com a imatge o afegir-lo a l\'aplicació Cartera d\'Apple (iOS) o Google Wallet (Android) per poder-te beneficiar dels descomptes a la botiga de llibres i comerços adherits.'
   },
   /* Amagat temporalment (no gestionat per l'AFA actualment):
   {
@@ -41,9 +41,7 @@ const faqs = [
               <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
             </span>
           </summary>
-          <div class="px-4 pb-4 text-slate-600">
-            {faq.a}
-          </div>
+          <div class="px-4 pb-4 text-slate-600" set:html={faq.a} />
         </details>
       ))}
     </div>
