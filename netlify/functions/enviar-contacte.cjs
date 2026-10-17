@@ -33,7 +33,7 @@ function generarCorreuHtml(titol, contingut) {
               <p style="margin: 0 0 10px 0; font-weight: bold; color: #ffffff; font-size: 16px;">AFA Escola Casa Nostra</p>
               <p style="margin: 0 0 10px 0;">Banyoles / Porqueres</p>
               <p style="margin: 0 0 20px 0;">
-                <a href="mailto:ampa.escolacasanostra@gmail.com" style="color: #FBB03B; text-decoration: none; font-weight: bold;">ampa.escolacasanostra@gmail.com</a>
+                <a href="mailto:afa@escolacasanostra.cat" style="color: #FBB03B; text-decoration: none; font-weight: bold;">afa@escolacasanostra.cat</a>
               </p>
               <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 20px;">
                 <tr><td style="border-top: 1px solid #71777A;"></td></tr>
@@ -109,18 +109,22 @@ exports.handler = async (event, context) => {
 
     // 3. Enviament amb Nodemailer
     if (process.env.EMAIL_PASS) {
+      const emailAfa = process.env.EMAIL_TO || 'afa@escolacasanostra.cat';
+      const emailSender = process.env.EMAIL_FROM || 'afa@escolacasanostra.cat';
+      const authUser = process.env.EMAIL_USER || 'afa@escolacasanostra.cat';
+
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-          user: process.env.EMAIL_USER || 'ampa.escolacasanostra@gmail.com',
+          user: authUser,
           pass: process.env.EMAIL_PASS,
         }
       });
 
       // Email a l'AFA
       await transporter.sendMail({
-        from: `"${nom} (via Web AFA)" <ampa.escolacasanostra@gmail.com>`,
-        to: 'adriaguixa@gmail.com',
+        from: `"${nom} (via Web AFA)" <${emailSender}>`,
+        to: emailAfa,
         replyTo: email,
         subject: `[Contacte Web] ${comissioNom} - ${nom}`,
         html: htmlAfa
@@ -128,7 +132,7 @@ exports.handler = async (event, context) => {
 
       // Còpia a la família
       await transporter.sendMail({
-        from: '"AFA Casa Nostra" <ampa.escolacasanostra@gmail.com>',
+        from: `"AFA Casa Nostra" <${emailSender}>`,
         to: email,
         subject: 'Hem rebut la teva consulta - AFA Casa Nostra',
         html: htmlUsuari
