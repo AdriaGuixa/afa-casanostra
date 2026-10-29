@@ -14,7 +14,7 @@ exports.handler = async (event, context) => {
 
   try {
     const data = JSON.parse(event.body);
-    const validationUrl = "https://afa-casanostra.netlify.app/validar?id=" + encodeURIComponent(data.codi);
+    const validationUrl = "https://afacasanostra.cat/validar?id=" + encodeURIComponent(data.codi);
     const nomsTitulars = data.titulars.join(' i ');
 
     // Estructura simplificada que demana l'API de WalletWallet

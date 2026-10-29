@@ -17,8 +17,8 @@ function generarCorreuHtml(titol, contingut) {
         <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); max-width: 600px; width: 100%;">
           <tr>
             <td align="center" style="background-color: #ffffff; padding: 30px; border-bottom: 4px solid #C4122E;">
-              <a href="https://afa-casanostra.netlify.app" target="_blank">
-                <img src="https://afa-casanostra.netlify.app/images/logo-afa-email.png" alt="AFA Casa Nostra" width="160" style="display: block; width: 160px; max-width: 100%; height: auto; border: 0;">
+              <a href="https://afacasanostra.cat" target="_blank">
+                <img src="https://afacasanostra.cat/images/logo-afa-email.png" alt="AFA Casa Nostra" width="160" style="display: block; width: 160px; max-width: 100%; height: auto; border: 0;">
               </a>
             </td>
           </tr>
@@ -34,7 +34,7 @@ function generarCorreuHtml(titol, contingut) {
               <p style="margin: 0 0 10px 0; font-weight: bold; color: #ffffff; font-size: 16px;">AFA Escola Casa Nostra</p>
               <p style="margin: 0 0 10px 0;">Banyoles / Porqueres</p>
               <p style="margin: 0 0 20px 0;">
-                <a href="mailto:afa@escolacasanostra.cat" style="color: #FBB03B; text-decoration: none; font-weight: bold;">afa@escolacasanostra.cat</a>
+                <a href="mailto:info@afacasanostra.cat" style="color: #FBB03B; text-decoration: none; font-weight: bold;">info@afacasanostra.cat</a>
               </p>
               <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 20px;">
                 <tr><td style="border-top: 1px solid #71777A;"></td></tr>
@@ -114,8 +114,8 @@ exports.handler = async (event, context) => {
 
   // ===== CONFIGURACIÓ EMAILS =====
   try {
-    const emailAfa = process.env.EMAIL_TO || 'afa@escolacasanostra.cat';
-    const emailSender = process.env.EMAIL_FROM || 'afa@escolacasanostra.cat';
+    const emailAfa = process.env.EMAIL_TO || 'info@afacasanostra.cat';
+    const emailSender = process.env.EMAIL_FROM || 'info@afacasanostra.cat';
     const authUser = process.env.EMAIL_USER || 'afa@escolacasanostra.cat';
 
     const transporter = nodemailer.createTransport({
@@ -163,6 +163,7 @@ exports.handler = async (event, context) => {
         await transporter.sendMail({
           from: `"AFA Casa Nostra" <${emailSender}>`,
           to: userEmail,
+          replyTo: emailSender,
           subject: `Confirmació d'inscripció: ${formTitol}`,
           html: htmlUser
         });
