@@ -1,6 +1,6 @@
 ---
 title: "Rua i Festa de Carnestoltes"
-date: "2027-02-12T16:30:00.000Z"
+date: "2027-01-29T16:30:00.000Z"
 tipus: "Festa"
 lloc: "Pati de l'escola i carrers de la vila a partir de les 16:30h"
 description: "Comparsa de l'escola amb proposta de tema de 4t d'ESO, rua pels carrers i berenar al pati amb preus per a socis."
