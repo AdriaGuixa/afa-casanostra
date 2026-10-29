@@ -1,6 +1,6 @@
 ---
 title: "Pessebre Vivent de l'Escola"
-date: "2026-12-18T17:00:00.000Z"
+date: "2026-12-12T17:00:00.000Z"
 tipus: "Festa"
 lloc: "Pati i instal·lacions de l'escola a partir de les 17:00h"
 description: "Tradicional representació nadalenca amb xocolata calenta i preus diferenciats per a socis."
