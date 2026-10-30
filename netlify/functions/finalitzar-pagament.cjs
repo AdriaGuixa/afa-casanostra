@@ -116,7 +116,7 @@ exports.handler = async (event, context) => {
   try {
     const emailAfa = process.env.EMAIL_TO || 'info@afacasanostra.cat';
     const emailSender = process.env.EMAIL_FROM || 'info@afacasanostra.cat';
-    const authUser = process.env.EMAIL_USER || 'info@afacasanostra.cat';
+    const authUser = process.env.EMAIL_USER || 'ampa.escolacasanostra@gmail.com';
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',

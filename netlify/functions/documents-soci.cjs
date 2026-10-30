@@ -246,7 +246,7 @@ exports.handler = async function (event) {
 
       if (process.env.EMAIL_PASS) {
         const emailSender = process.env.EMAIL_FROM || 'info@afacasanostra.cat';
-        const authUser = process.env.EMAIL_USER || 'info@afacasanostra.cat';
+        const authUser = process.env.EMAIL_USER || 'ampa.escolacasanostra@gmail.com';
 
         const transporter = nodemailer.createTransport({
           service: 'gmail',
@@ -258,6 +258,7 @@ exports.handler = async function (event) {
 
         await transporter.sendMail({
           from: `"AFA Casa Nostra" <${emailSender}>`,
+          replyTo: emailSender,
           to: soci.email,
           subject: `${otpCode} és el teu codi d'accés als documents de l'AFA`,
           html: htmlOtp
@@ -374,10 +375,13 @@ exports.handler = async function (event) {
     };
   } catch (error) {
     console.error('Error a documents-soci:', error);
+    const detail = error && error.code === 'EAUTH'
+      ? "Error d'autenticació del servidor de correu (revisa EMAIL_USER i EMAIL_PASS a Netlify)."
+      : 'Error intern del servidor. Torna-ho a provar més tard.';
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Error intern del servidor. Torna-ho a provar més tard.' })
+      body: JSON.stringify({ error: detail })
     };
   }
 };
