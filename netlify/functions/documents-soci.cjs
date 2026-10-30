@@ -246,23 +246,56 @@ exports.handler = async function (event) {
 
       if (process.env.EMAIL_PASS) {
         const emailSender = process.env.EMAIL_FROM || 'info@afacasanostra.cat';
-        const authUser = process.env.EMAIL_USER || 'ampa.escolacasanostra@gmail.com';
+        const candidates = [
+          ...new Set(
+            [
+              'afa@escolacasanostra.cat',
+              process.env.EMAIL_USER,
+              'info@afacasanostra.cat',
+              'ampa.escolacasanostra@gmail.com',
+              'adriaguixa@gmail.com'
+            ].filter(Boolean)
+          )
+        ];
 
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: authUser,
-            pass: process.env.EMAIL_PASS
+        const rawPass = process.env.EMAIL_PASS.trim();
+        const cleanPass = rawPass.replace(/\s+/g, '');
+        let lastErr = null;
+        let sent = false;
+
+        for (const candidateUser of candidates) {
+          try {
+            const transporter = nodemailer.createTransport(
+              process.env.SMTP_HOST
+                ? {
+                    host: process.env.SMTP_HOST,
+                    port: Number(process.env.SMTP_PORT || 465),
+                    secure: String(process.env.SMTP_PORT || '465') === '465',
+                    auth: { user: candidateUser, pass: rawPass }
+                  }
+                : {
+                    service: 'gmail',
+                    auth: { user: candidateUser, pass: cleanPass }
+                  }
+            );
+
+            await transporter.sendMail({
+              from: `"AFA Casa Nostra" <${emailSender}>`,
+              replyTo: emailSender,
+              to: soci.email,
+              subject: `${otpCode} és el teu codi d'accés als documents de l'AFA`,
+              html: htmlOtp
+            });
+            sent = true;
+            break;
+          } catch (err) {
+            lastErr = err;
           }
-        });
+        }
 
-        await transporter.sendMail({
-          from: `"AFA Casa Nostra" <${emailSender}>`,
-          replyTo: emailSender,
-          to: soci.email,
-          subject: `${otpCode} és el teu codi d'accés als documents de l'AFA`,
-          html: htmlOtp
-        });
+        if (!sent && lastErr) {
+          throw lastErr;
+        }
       } else {
         console.log(`[SIMULACIÓ OTP DOCUMENTS] Correu: ${soci.email} | Codi: ${otpCode}`);
       }
@@ -375,8 +408,9 @@ exports.handler = async function (event) {
     };
   } catch (error) {
     console.error('Error a documents-soci:', error);
+    const envUser = process.env.EMAIL_USER || 'no definit';
     const detail = error && error.code === 'EAUTH'
-      ? "Error d'autenticació del servidor de correu (revisa EMAIL_USER i EMAIL_PASS a Netlify)."
+      ? `Error d'autenticació SMTP (EMAIL_USER actual a Netlify: "${envUser}"). Comprova que EMAIL_PASS sigui una contrasenya d'aplicació de Google vàlida.`
       : 'Error intern del servidor. Torna-ho a provar més tard.';
     return {
       statusCode: 500,
