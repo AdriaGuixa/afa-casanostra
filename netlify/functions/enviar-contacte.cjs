@@ -111,13 +111,13 @@ exports.handler = async (event, context) => {
     if (process.env.EMAIL_PASS) {
       const emailAfa = process.env.EMAIL_TO || 'info@afacasanostra.cat';
       const emailSender = process.env.EMAIL_FROM || 'info@afacasanostra.cat';
-      const authUser = process.env.EMAIL_USER || 'ampa.escolacasanostra@gmail.com';
+      const authUser = 'afa@escolacasanostra.cat';
 
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
           user: authUser,
-          pass: process.env.EMAIL_PASS,
+          pass: process.env.EMAIL_PASS.trim().replace(/\s+/g, ''),
         }
       });
 
